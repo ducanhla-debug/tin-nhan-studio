@@ -2,6 +2,8 @@
 
 ## Đối chiếu hai screenshot mới do người dùng cung cấp
 
+Thanh trạng thái được chỉnh riêng theo ảnh: sóng gồm bốn cột đặc cùng đáy; Wi-Fi ba dải đặc thuôn; pin thân bo liền, đầu pin riêng, phần trăm 11.5pt và vùng pin còn lại. Cụm phải đặt tại x280–361 trên khung 393pt. Có kiểm thử clamp/round giá trị pin và sóng, quick pick pin thấp, mạng yếu và đủ pin. Đây vẫn là hình vẽ tái hiện từ ảnh, chưa chứng nhận trùng pixel với hệ thống iOS 26 thực tế.
+
 Hai ảnh mới là chuẩn trực tiếp cho màn hình hội thoại Messenger/Zalo, không phải ảnh quảng bá. Không đưa tên, nội dung riêng tư hoặc screenshot gốc vào repository công khai.
 
 - Messenger: header xanh nhạt chuyển sắc; bong bóng gửi đổi xanh theo vị trí dọc; góc nối nhóm nhỏ; avatar cuối nhóm; thanh soạn có nút cộng tròn, camera/micro đặc, input ngắn. Mặc định ẩn trạng thái hoạt động. Có trích dẫn trả lời tùy chọn.

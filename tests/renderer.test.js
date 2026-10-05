@@ -1,11 +1,18 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { canvasSize, wrapLines, layoutMessages, logicalSize } from '../src/renderer.js'
+import { canvasSize, wrapLines, layoutMessages, logicalSize, statusValues } from '../src/renderer.js'
 import { initialState } from '../src/defaults.js'
 
 test('kích thước ảnh xuất đúng tỷ lệ 9:16', () => {
   assert.deepEqual(canvasSize, { width: 1080, height: 1920 })
   assert.equal(canvasSize.width / canvasSize.height, 9 / 16)
+})
+
+test('pin và sóng được làm tròn, giới hạn và xử lý giá trị không hợp lệ', () => {
+  assert.deepEqual(statusValues({battery:76,signal:4}),{battery:76,signal:4})
+  assert.deepEqual(statusValues({battery:-10,signal:12}),{battery:0,signal:4})
+  assert.deepEqual(statusValues({battery:'abc',signal:NaN}),{battery:100,signal:4})
+  assert.deepEqual(statusValues({battery:99.6,signal:1.4}),{battery:100,signal:1})
 })
 
 test('nội dung dài được ngắt thành nhiều dòng', () => {

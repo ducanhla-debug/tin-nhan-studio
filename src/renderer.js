@@ -77,22 +77,33 @@ function glass(ctx,x,y,w,h,r,t) {
   ctx.save();ctx.shadowColor=t.dark?'#00000050':'#00000012';ctx.shadowBlur=5*SCALE;ctx.shadowOffsetY=1*SCALE
   rect(ctx,x,y,w,h,r,t.dark?'#29292bdc':'#fafafadd',t.dark?'#ffffff25':'#ffffffee');ctx.restore()
 }
+export function statusValues(state) {
+  const battery=Number(state.battery),signal=Number(state.signal)
+  return {battery:Number.isFinite(battery)?Math.max(0,Math.min(100,Math.round(battery))):100,signal:Number.isFinite(signal)?Math.max(0,Math.min(4,Math.round(signal))):4}
+}
 function status(ctx,state,t) {
   const fg=state.platform==='zalo'?'#fff':t.fg
   text(ctx,state.time || '09:41',56,35,17,fg,600,'center')
   rect(ctx,(W-126)/2,11,126,37,19,'#000')
-  for(let i=0;i<4;i++)rect(ctx,294+i*5,35-(4+i*3),3.4,4+i*3,1,i<Number(state.signal)?fg:`${fg}40`)
+  const values=statusValues(state)
+  // Solid stepped bars, aligned to the Wi-Fi/battery baseline.
+  for(let i=0;i<4;i++)rect(ctx,280+i*5.2,35-(5+i*2.6),3.5,5+i*2.6,.9,i<values.signal?fg:`${fg}35`)
   if(state.wifi){
-    ctx.save();ctx.translate(324,29);ctx.strokeStyle=fg;ctx.lineWidth=2.1;ctx.lineCap='round'
-    for(const r of [8,5]){ctx.beginPath();ctx.arc(0,4,r,Math.PI*1.21,Math.PI*1.79);ctx.stroke()}
-    ctx.beginPath();ctx.arc(0,2,1.3,0,Math.PI*2);ctx.fillStyle=fg;ctx.fill();ctx.restore()
-  } else text(ctx,state.carrier || '5G',325,34,13,fg,600,'center')
-  const charge=Math.max(0,Math.min(100,Number(state.battery)||0))
+    ctx.save();ctx.translate(306,22);ctx.fillStyle=fg
+    // Three filled, tapered bands rather than generic thin outline arcs.
+    ctx.fill(new Path2D('M0 4.8C5-0.7 13-0.7 18 4.8L15.8 7C12 3.1 6 3.1 2.2 7Z M4 8.5C6.8 5.5 11.2 5.5 14 8.5L11.8 10.7C10.2 9.1 7.8 9.1 6.2 10.7Z M7.2 12C8.2 10.9 9.8 10.9 10.8 12L9 13.8Z'))
+    ctx.restore()
+  } else text(ctx,state.carrier || '5G',315,34.5,12,fg,600,'center')
+  const charge=values.battery
   const batteryColor=charge<=20?'#ff453a':fg
-  rect(ctx,342,24,27,12.5,3,'transparent',`${fg}70`);rect(ctx,370,28,1.6,4.4,1,`${fg}70`)
-  // Percentage remains readable against both charged and empty portions.
-  rect(ctx,343.5,25.5,24,9.5,2,`${fg}25`);rect(ctx,343.5,25.5,Math.max(1,24*charge/100),9.5,2,batteryColor)
-  text(ctx,charge,355.5,33.1,9,t.dark||state.platform==='zalo'?'#111':'#fff',700,'center')
+  const bx=332,by=22.5,bw=27,bh=13.5
+  rect(ctx,bx,by,bw,bh,4,`${fg}35`)
+  ctx.save();ctx.beginPath();ctx.roundRect(bx,by,bw,bh,4);ctx.clip()
+  ctx.fillStyle=batteryColor;ctx.fillRect(bx,by,bw*charge/100,bh);ctx.restore()
+  // The terminal is separate from the rounded body, as in the reference.
+  ctx.fillStyle=`${fg}50`;ctx.beginPath();ctx.ellipse(bx+bw+1.5,by+bh/2,1.1,2.2,0,-Math.PI/2,Math.PI/2);ctx.fill()
+  const digitsColor=charge<=20?'#fff':t.dark||state.platform==='zalo'?'#111':'#fff'
+  text(ctx,charge,bx+bw/2,by+10.7,11.5,digitsColor,700,'center')
 }
 async function header(ctx,state,t) {
   if(state.platform==='imessage') {
