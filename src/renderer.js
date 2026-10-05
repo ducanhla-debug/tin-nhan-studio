@@ -5,9 +5,54 @@ const imageCache = new Map()
 export const canvasSize = { width: WIDTH, height: HEIGHT }
 
 const palettes = {
-  messenger: { accent: '#0a7cff', incoming: '#eef0f3', canvas: '#ffffff', composer: '#f1f2f6' },
-  zalo: { accent: '#0b8ff7', incoming: '#ffffff', canvas: '#e8f1fb', composer: '#ffffff' },
-  imessage: { accent: '#20a33a', incoming: '#e9e9eb', canvas: '#ffffff', composer: '#f7f7f8' },
+  messenger: { accent: '#0084ff', incoming: '#f0f0f0', canvas: '#ffffff', composer: '#f2f2f2' },
+  zalo: { accent: '#0088ff', incoming: '#ffffff', canvas: '#e2e9f1', composer: '#ffffff' },
+  imessage: { accent: '#007aff', incoming: '#e9e9eb', canvas: '#ffffff', composer: '#f7f7f8' },
+}
+
+// Outlined controls in a 24-point coordinate system, scaled to screenshot pixels.
+const iconPaths = {
+  back: 'M15 18l-6-6 6-6',
+  phone: 'M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.1-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.5 2.1L8 10a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.9.6 2.9.7a2 2 0 0 1 1.7 2z',
+  video: 'M16 8l6-4v16l-6-4M3 5h11a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z',
+  menu: 'M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01',
+  plus: 'M12 5v14M5 12h14',
+  camera: 'M14 4l2 3h4a2 2 0 0 1 2 2v11H2V9a2 2 0 0 1 2-2h4l2-3zM16 13a4 4 0 1 1-8 0 4 4 0 0 1 8 0',
+  image: 'M3 3h18v18H3zM3 16l5-5 5 5 3-3 5 5M9 7h.01',
+  mic: 'M9 3a3 3 0 0 1 6 0v9a3 3 0 0 1-6 0zM5 10v2a7 7 0 0 0 14 0v-2M12 19v3M8 22h8',
+  smile: 'M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0M8 9h.01M16 9h.01M8 14s1 3 4 3 4-3 4-3',
+  thumb: 'M7 10v12H2V10zM7 10l5-8a3 3 0 0 1 2 3l-1 5h7a2 2 0 0 1 2 2l-2 8a2 2 0 0 1-2 2H7',
+  dots: 'M4 12h.01M12 12h.01M20 12h.01',
+  reply: 'M9 5l-7 7 7 7M2 12h10a9 9 0 0 1 9 9',
+  copy: 'M9 9h13v13H9zM5 15H2V2h13v3',
+  forward: 'M15 5l7 7-7 7M22 12H10a8 8 0 0 0-8 8',
+  unread: 'M2 4h20v16H2zM2 4l10 8L22 4',
+  archive: 'M2 3h20v5H2zM4 8v13h16V8M9 12h6',
+  trash: 'M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7',
+  translate: 'M2 4h12M8 2v2M5 4s0 7 8 10M11 4s0 7-9 11M13 22l5-12 5 12M15 18h6',
+  bell: 'M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4M3 3l18 18',
+}
+
+function drawIcon(ctx, name, x, y, size, color, filled = false) {
+  ctx.save()
+  ctx.translate(x, y)
+  ctx.scale(size / 24, size / 24)
+  ctx.strokeStyle = color
+  ctx.fillStyle = color
+  ctx.lineWidth = name === 'dots' ? 4 : 1.65
+  ctx.lineCap = 'round'
+  ctx.lineJoin = 'round'
+  const path = new Path2D(iconPaths[name] || iconPaths.dots)
+  if (filled) ctx.fill(path)
+  ctx.stroke(path)
+  ctx.restore()
+}
+
+function ellipsis(ctx, text, width) {
+  let value = String(text || '')
+  if (ctx.measureText(value).width <= width) return value
+  while (value.length && ctx.measureText(`${value}…`).width > width) value = value.slice(0, -1)
+  return `${value}…`
 }
 
 function roundedRect(ctx, x, y, w, h, r) {
@@ -129,10 +174,11 @@ function drawBattery(ctx, x, y, value, color) {
   fillRound(ctx, x + 62, y + 9, 5, 13, 2, color)
   const width = Math.max(5, Math.round((50 * Math.min(100, Math.max(0, value))) / 100))
   fillRound(ctx, x + 5, y + 5, width, 21, 5, value <= 20 ? '#ff3b30' : color)
+  drawText(ctx,String(Math.min(100,Math.max(0,value))),x+30,y+23,{font:'700 22px -apple-system, sans-serif',color:color==='#ffffff'?'#111':'#fff',align:'center'})
 }
 
 function drawStatusBar(ctx, state, dark) {
-  const fg = dark ? '#f8fafc' : '#08090b'
+  const fg = dark || state.platform === 'zalo' ? '#ffffff' : '#08090b'
   drawText(ctx, state.time || '09:41', 72, 68, { font: '650 38px -apple-system, sans-serif', color: fg, baseline: 'middle' })
   fillRound(ctx, 390, 25, 300, 82, 42, '#000000')
   drawSignal(ctx, 808, 38, Number(state.signal) || 1, fg)
@@ -141,51 +187,41 @@ function drawStatusBar(ctx, state, dark) {
   drawBattery(ctx, 970, 43, Number(state.battery), fg)
 }
 
-function drawHeaderIcons(ctx, platform, accent, y) {
-  ctx.save()
-  ctx.strokeStyle = accent
-  ctx.lineWidth = 8
-  ctx.lineCap = 'round'
-  ctx.beginPath()
-  ctx.moveTo(90, y + 20)
-  ctx.lineTo(62, y + 48)
-  ctx.lineTo(90, y + 76)
-  ctx.stroke()
-  ctx.beginPath()
-  ctx.arc(868, y + 46, 25, 0.25, 2.9)
-  ctx.stroke()
-  ctx.beginPath()
-  ctx.roundRect(948, y + 22, 56, 48, 10)
-  ctx.stroke()
-  if (platform !== 'imessage') {
-    ctx.beginPath()
-    ctx.moveTo(1004, y + 34)
-    ctx.lineTo(1025, y + 22)
-    ctx.lineTo(1025, y + 70)
-    ctx.lineTo(1004, y + 58)
-    ctx.stroke()
-  }
-  ctx.restore()
-}
-
 async function drawHeader(ctx, state, palette, dark) {
-  const fg = dark ? '#f8fafc' : '#111827'
+  const fg = dark ? '#ffffff' : '#111111'
   const sub = dark ? '#a6adba' : '#7b8495'
-  const y = 120
-  drawHeaderIcons(ctx, state.platform, palette.accent, y)
-  await drawAvatar(ctx, state.avatar, state.name, 132, y + 2, 92, palette.accent)
-  drawText(ctx, state.name || 'Người dùng', 244, y + 43, { font: '700 40px -apple-system, sans-serif', color: fg })
-  drawText(ctx, state.activity || '', 244, y + 82, { font: '29px -apple-system, sans-serif', color: sub })
-  ctx.strokeStyle = dark ? '#2f3540' : '#e5e7eb'
-  ctx.lineWidth = 2
-  ctx.beginPath()
-  ctx.moveTo(0, 236)
-  ctx.lineTo(WIDTH, 236)
-  ctx.stroke()
+  const activity = state.activity === 'Không hiển thị' ? '' : state.activity
+  if (state.platform === 'imessage') {
+    // iOS 26 contact avatar floats above the compact name control.
+    fillRound(ctx, 34, 132, 98, 98, 49, dark ? '#242426' : '#f1f1f3', dark ? '#454548' : '#dedee1', 1)
+    drawIcon(ctx, 'back', 49, 149, 64, palette.accent)
+    await drawAvatar(ctx, state.avatar, state.name, 492, 128, 96, '#999aa0')
+    ctx.font = '600 34px -apple-system, sans-serif'
+    const name = ellipsis(ctx, state.name || 'Người dùng', 460)
+    const nameWidth = ctx.measureText(name).width + 74
+    fillRound(ctx,(WIDTH-nameWidth)/2,231,nameWidth,58,29,dark?'#242426ee':'#f4f4f5ee')
+    drawText(ctx,name,WIDTH/2-13,270,{font:'600 34px -apple-system, sans-serif',color:fg,align:'center'})
+    drawText(ctx,'›',(WIDTH+nameWidth)/2-24,270,{font:'32px sans-serif',color:sub,align:'center'})
+    return
+  }
+  const zalo = state.platform === 'zalo'
+  const color = zalo ? '#ffffff' : palette.accent
+  drawIcon(ctx, 'back', 34, 142, 64, color)
+  if (!zalo) await drawAvatar(ctx, state.avatar, state.name, 116, 132, 92, palette.accent)
+  const nameX = zalo ? 130 : 232
+  ctx.font = '600 40px -apple-system, sans-serif'
+  drawText(ctx, ellipsis(ctx, state.name || 'Người dùng', zalo ? 550 : 570), nameX, activity ? 169 : 187, { font: '600 40px -apple-system, sans-serif', color: zalo ? '#fff' : fg })
+  if (activity) drawText(ctx, activity, nameX, 210, { font: '28px -apple-system, sans-serif', color: zalo ? '#e4f3ff' : sub })
+  drawIcon(ctx, 'phone', zalo ? 760 : 844, 149, 55, color)
+  drawIcon(ctx, 'video', zalo ? 866 : 966, 151, 57, color)
+  if (zalo) drawIcon(ctx, 'menu', 981, 151, 55, color)
 }
 
 function getBubbleStyle(state, palette, sender, dark) {
-  if (sender === 'me') return { fill: palette.accent, color: '#ffffff' }
+  if (sender === 'me') {
+    if (state.platform === 'zalo') return {fill: dark ? '#193f63' : '#d3eaff', color: dark ? '#fff' : '#111318'}
+    return { fill: state.platform === 'imessage' && state.messageService === 'sms' ? '#34c759' : palette.accent, color: '#ffffff' }
+  }
   if (dark) return { fill: state.platform === 'zalo' ? '#283241' : '#2c2c2e', color: '#ffffff' }
   return { fill: palette.incoming, color: '#111318' }
 }
@@ -204,63 +240,85 @@ async function drawMessageImage(ctx, src, x, y, w, h) {
 }
 
 async function calculateMessageLayout(ctx, state, top, bottom) {
-  ctx.font = '38px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
+  ctx.font = '42px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
   const layouts = []
-  let totalHeight = 0
-  for (const message of state.messages) {
+  const apple = state.platform === 'imessage'
+  const zalo = state.platform === 'zalo'
+  for (const [index, message] of state.messages.entries()) {
+    const previous = state.messages[index - 1]
+    const next = state.messages[index + 1]
+    const groupEnd = !next || next.sender !== message.sender
+    const minutes = value => /^\d{1,2}:\d{2}$/.test(value || '') ? Number(value.split(':')[0])*60+Number(value.split(':')[1]) : null
+    const currentTime = minutes(message.time)
+    const previousTime = minutes(previous?.time)
+    const timestamp = message.time && (!previous || currentTime === null || previousTime === null || Math.abs(currentTime-previousTime)>5)
+    const timeHeight = timestamp && !zalo ? 65 : 0
     const isImage = message.type === 'image' && message.image
-    const lines = isImage ? [] : wrapLines(ctx, message.text, 610)
+    const lines = isImage ? [] : wrapLines(ctx, message.text, apple ? 735 : 690)
     const textWidth = lines.reduce((max, line) => Math.max(max, ctx.measureText(line).width), 0)
-    const w = isImage ? 540 : Math.max(150, Math.min(690, textWidth + 58))
-    const h = isImage ? 410 : Math.max(76, lines.length * 49 + 34)
-    const block = h + 66
-    layouts.push({ message, lines, w, h, block })
-    totalHeight += block
+    const w = isImage ? 600 : Math.max(zalo ? 180 : 120, textWidth + 58)
+    const h = isImage ? 450 : Math.max(88, lines.length * 53 + 34 + (zalo ? 34 : 0))
+    const block = h + timeHeight + (groupEnd ? 30 : 8) + (message.reaction ? 28 : 0)
+    layouts.push({ message, lines, w, h, block, groupEnd, timeHeight })
   }
   const available = bottom - top
   let visible = layouts
+  // A selected message must stay visible in focus mode, including older messages.
+  const selectedIndex = layouts.findIndex(item => item.message.id === state.selectedId)
+  if (state.mode === 'focus' && selectedIndex >= 0) visible = layouts.slice(0, selectedIndex + 1)
   while (visible.length > 1 && visible.reduce((sum, item) => sum + item.block, 0) > available) visible = visible.slice(1)
   const visibleHeight = visible.reduce((sum, item) => sum + item.block, 0)
   let y = Math.max(top, bottom - visibleHeight)
   return visible.map((item) => {
-    const x = item.message.sender === 'me' ? WIDTH - 54 - item.w : 130
-    const result = { ...item, x, y }
+    const x = item.message.sender === 'me' ? WIDTH - 36 - item.w : apple ? 36 : 116
+    const result = { ...item, x, y: y + item.timeHeight }
     y += item.block
     return result
   })
 }
 
-async function drawMessages(ctx, state, palette, dark, boundsOnly = false) {
-  const top = 285
-  const bottom = state.keyboard ? 1260 : 1660
+async function drawBubble(ctx, state, palette, dark, item) {
+  const {message, x, y, w, h, lines, groupEnd} = item
+  const bubble = getBubbleStyle(state, palette, message.sender, dark)
+  const apple = state.platform === 'imessage'
+  const zalo = state.platform === 'zalo'
+  fillRound(ctx, x, y, w, h, zalo ? 24 : 46, bubble.fill, zalo && !dark ? '#cfd7e0' : null, 1.5)
+  if (apple && groupEnd && message.type !== 'image') {
+    ctx.fillStyle = bubble.fill
+    ctx.beginPath()
+    if (message.sender === 'me') {
+      ctx.moveTo(x+w-30,y+h-30);ctx.quadraticCurveTo(x+w+2,y+h+2,x+w+15,y+h);ctx.quadraticCurveTo(x+w-20,y+h+7,x+w-45,y+h-7)
+    } else {
+      ctx.moveTo(x+30,y+h-30);ctx.quadraticCurveTo(x-2,y+h+2,x-15,y+h);ctx.quadraticCurveTo(x+20,y+h+7,x+45,y+h-7)
+    }
+    ctx.fill()
+  }
+  if (message.type === 'image' && message.image) await drawMessageImage(ctx,message.image,x,y,w,h)
+  else lines.forEach((line,index)=>drawText(ctx,line,x+29,y+53+index*53,{font:'42px -apple-system, sans-serif',color:bubble.color}))
+  if (zalo && message.time) drawText(ctx,message.time,x+w-20,y+h-15,{font:'24px -apple-system, sans-serif',color:dark?'#a3b3c4':'#7d8790',align:'right'})
+  if (message.reaction) {
+    const ry = apple ? y-17 : y+h-17
+    fillRound(ctx,x+w-60,ry,75,51,26,dark?'#3a3a3c':'#ffffff',dark?'#090a0c':'#e4e4e7',3)
+    drawText(ctx,message.reaction,x+w-23,ry+27,{font:'32px "Segoe UI Emoji", sans-serif',align:'center',baseline:'middle'})
+  }
+}
+
+async function drawMessages(ctx, state, palette, dark, boundsOnly = false, bottomOverride) {
+  const top = state.platform === 'imessage' ? 330 : 285
+  const bottom = bottomOverride ?? (state.keyboard ? 1260 : 1700)
   const layouts = await calculateMessageLayout(ctx, state, top, bottom)
   if (boundsOnly) return layouts
   for (const item of layouts) {
-    const { message, x, y, w, h, lines } = item
-    const bubble = getBubbleStyle(state, palette, message.sender, dark)
-    if (message.sender === 'them') await drawAvatar(ctx, state.avatar, state.name, 42, y + h - 66, 58, palette.accent)
-    fillRound(ctx, x, y, w, h, 34, bubble.fill, state.platform === 'zalo' && message.sender === 'them' ? '#d6dde7' : null, 2)
-    if (message.type === 'image' && message.image) await drawMessageImage(ctx, message.image, x, y, w, h)
-    else {
-      lines.forEach((line, index) => {
-        drawText(ctx, line, x + 29, y + 48 + index * 49, { font: '38px -apple-system, sans-serif', color: bubble.color })
-      })
-    }
-    drawText(ctx, message.time || '', message.sender === 'me' ? x + w : x, y + h + 34, {
-      font: '25px -apple-system, sans-serif',
-      color: dark ? '#969ca8' : '#8991a0',
-      align: message.sender === 'me' ? 'right' : 'left',
-    })
-    if (message.reaction) {
-      fillRound(ctx, x + w - 48, y + h - 23, 57, 44, 22, dark ? '#3a3a3c' : '#ffffff', dark ? '#4d4d50' : '#d9dde5', 2)
-      drawText(ctx, message.reaction, x + w - 19, y + h - 1, { font: '27px "Segoe UI Emoji", sans-serif', color: '#111', align: 'center', baseline: 'middle' })
-    }
+    const {message,x,y,h,groupEnd,timeHeight} = item
+    if (timeHeight) drawText(ctx,message.time,WIDTH/2,y-26,{font:'500 27px -apple-system, sans-serif',color:dark?'#99999e':'#8e8e93',align:'center'})
+    if (message.sender === 'them' && state.platform !== 'imessage' && groupEnd) await drawAvatar(ctx,state.avatar,state.name,30,y+h-68,62,palette.accent)
+    await drawBubble(ctx,state,palette,dark,item)
   }
   return layouts
 }
 
 function drawComposer(ctx, state, palette, dark) {
-  const y = state.keyboard ? 1276 : 1700
+  const y = state.keyboard ? 1276 : 1740
   const bg = dark ? '#15161a' : palette.composer
   ctx.fillStyle = dark ? '#111214' : state.platform === 'zalo' ? '#ffffff' : '#ffffff'
   ctx.fillRect(0, y - 20, WIDTH, HEIGHT - y + 20)
@@ -270,11 +328,29 @@ function drawComposer(ctx, state, palette, dark) {
   ctx.moveTo(0, y - 20)
   ctx.lineTo(WIDTH, y - 20)
   ctx.stroke()
-  fillRound(ctx, 182, y + 20, 680, 86, 43, bg, dark ? '#3a3d44' : '#d8dde5', 2)
-  drawText(ctx, 'Aa', 225, y + 74, { font: '34px -apple-system, sans-serif', color: dark ? '#9ca3af' : '#8a93a3' })
-  drawText(ctx, '+', 70, y + 64, { font: '500 55px -apple-system, sans-serif', color: palette.accent, align: 'center' })
-  drawText(ctx, '☺', 818, y + 67, { font: '42px -apple-system, sans-serif', color: palette.accent, align: 'center' })
-  drawText(ctx, state.platform === 'messenger' ? '👍' : '↑', 982, y + 66, { font: '46px "Segoe UI Emoji", sans-serif', color: palette.accent, align: 'center' })
+  const muted = dark ? '#a1a1a6' : '#8e8e93'
+  if (state.platform === 'imessage') {
+    fillRound(ctx,32,y+16,90,90,45,dark?'#303033':'#e9e9eb')
+    drawIcon(ctx,'plus',51,y+35,52,muted)
+    fillRound(ctx,149,y+16,891,90,45,bg,dark?'#48484a':'#c6c6c8',2)
+    drawText(ctx,state.messageService==='sms'?'Tin nhắn văn bản':'iMessage',181,y+76,{font:'39px -apple-system, sans-serif',color:muted})
+    drawIcon(ctx,'mic',969,y+37,47,muted)
+  } else if (state.platform === 'zalo') {
+    drawIcon(ctx,'smile',30,y+35,59,muted)
+    drawText(ctx,'Tin nhắn',119,y+78,{font:'42px -apple-system, sans-serif',color:muted})
+    drawIcon(ctx,'dots',728,y+36,56,muted)
+    drawIcon(ctx,'mic',844,y+31,61,muted)
+    drawIcon(ctx,'image',963,y+34,59,muted)
+  } else {
+    drawIcon(ctx,'plus',29,y+39,51,palette.accent)
+    drawIcon(ctx,'camera',105,y+39,51,palette.accent)
+    drawIcon(ctx,'image',184,y+39,51,palette.accent)
+    drawIcon(ctx,'mic',262,y+39,49,palette.accent)
+    fillRound(ctx,338,y+19,590,88,44,bg)
+    drawText(ctx,'Aa',373,y+77,{font:'39px -apple-system, sans-serif',color:muted})
+    drawIcon(ctx,'smile',847,y+39,50,palette.accent)
+    drawIcon(ctx,'thumb',973,y+39,54,palette.accent,true)
+  }
   if (state.keyboard) drawKeyboard(ctx, dark)
   else fillRound(ctx, 405, 1885, 270, 13, 8, dark ? '#f7f7f8' : '#101114')
 }
@@ -307,6 +383,12 @@ async function renderFull(ctx, state, { skipStatus = false } = {}) {
   ctx.clearRect(0, 0, WIDTH, HEIGHT)
   ctx.fillStyle = dark ? '#090a0c' : palette.canvas
   ctx.fillRect(0, 0, WIDTH, HEIGHT)
+  if (state.platform === 'zalo') {
+    const gradient = ctx.createLinearGradient(0,0,WIDTH,236)
+    gradient.addColorStop(0,'#0086ff');gradient.addColorStop(1,'#00b6ef')
+    ctx.fillStyle = gradient
+    ctx.fillRect(0,0,WIDTH,246)
+  }
   if (!skipStatus) drawStatusBar(ctx, state, dark)
   await drawHeader(ctx, state, palette, dark)
   const layouts = await drawMessages(ctx, state, palette, dark)
@@ -314,32 +396,37 @@ async function renderFull(ctx, state, { skipStatus = false } = {}) {
   return layouts
 }
 
-function drawReactionBar(ctx, layout) {
+function drawReactionBar(ctx, layout, state) {
   const width = 600
   const x = Math.max(36, Math.min(WIDTH - width - 36, layout.x + layout.w - width))
   const y = Math.max(135, layout.y - 115)
-  fillRound(ctx, x, y, width, 88, 44, '#29292b', null)
-  const emojis = ['❤️', '😆', '😮', '😢', '😡', '👍']
+  const dark = state.appearance === 'dark'
+  fillRound(ctx, x, y, width, 88, 44, dark ? '#333335' : '#f4f4f5')
+  const emojis = state.platform === 'imessage' ? ['❤️', '👍', '👎', '😂', '‼️', '❓'] : ['❤️', '😆', '😮', '😢', '😡', '👍']
   emojis.forEach((emoji, index) => drawText(ctx, emoji, x + 53 + index * 87, y + 46, { font: '43px "Segoe UI Emoji", sans-serif', color: '#fff', align: 'center', baseline: 'middle' }))
-  drawText(ctx, '+', x + width - 38, y + 45, { font: '42px -apple-system, sans-serif', color: '#fff', align: 'center', baseline: 'middle' })
+  drawText(ctx, '+', x + width - 38, y + 45, { font: '42px -apple-system, sans-serif', color: dark ? '#fff' : '#444', align: 'center', baseline: 'middle' })
 }
 
-function drawActionMenu(ctx, layout) {
+function drawActionMenu(ctx, layout, state) {
   const width = 500
   const x = Math.max(36, Math.min(WIDTH - width - 36, layout.x))
-  const y = Math.min(HEIGHT - 420, layout.y + layout.h + 76)
-  const actions = ['Trả lời', 'Sao chép', 'Chuyển tiếp', 'Khác']
-  fillRound(ctx, x, y, width, 330, 28, '#29292bee')
+  const y = layout.y + layout.h + 36
+  const dark = state.appearance === 'dark'
+  const actions = state.platform === 'imessage' ? ['Trả lời', 'Sao chép', 'Dịch', 'Khác'] : ['Trả lời', 'Sao chép', 'Chuyển tiếp', 'Khác']
+  const icons = ['reply','copy',state.platform === 'imessage' ? 'translate' : 'forward','dots']
+  fillRound(ctx, x, y, width, 330, 28, dark ? '#29292bf5' : '#f4f4f5f5')
   actions.forEach((action, index) => {
     if (index) {
-      ctx.strokeStyle = '#56565a'
+      ctx.strokeStyle = dark ? '#56565a' : '#d3d3d6'
       ctx.lineWidth = 2
       ctx.beginPath()
       ctx.moveTo(x, y + index * 82)
       ctx.lineTo(x + width, y + index * 82)
       ctx.stroke()
     }
-    drawText(ctx, action, x + 32, y + index * 82 + 50, { font: '34px -apple-system, sans-serif', color: '#fff' })
+    const color = dark ? '#fff' : '#19191b'
+    drawText(ctx, action, x + 32, y + index * 82 + 50, { font: '34px -apple-system, sans-serif', color })
+    drawIcon(ctx,icons[index],x+width-72,y+index*82+23,40,color)
   })
 }
 
@@ -356,10 +443,17 @@ async function renderFocus(ctx, state) {
   ctx.drawImage(base, -25, -25, WIDTH + 50, HEIGHT + 50)
   ctx.restore()
   if (!selected) return
-  const pad = 18
-  ctx.drawImage(base, selected.x - pad, selected.y - pad, selected.w + pad * 2, selected.h + pad * 2 + 48, selected.x - pad, selected.y - pad, selected.w + pad * 2, selected.h + pad * 2 + 48)
-  drawReactionBar(ctx, selected)
-  drawActionMenu(ctx, selected)
+  const scale = Math.min(1,1100/selected.h)
+  const focused = {...selected,y:Math.max(310,Math.min(HEIGHT-460-selected.h*scale,selected.y))}
+  ctx.save()
+  ctx.translate(focused.x,focused.y)
+  ctx.scale(scale,scale)
+  await drawBubble(ctx,state,palettes[state.platform] || palettes.messenger,state.appearance==='dark',{...focused,x:0,y:0})
+  ctx.restore()
+  focused.w *= scale
+  focused.h *= scale
+  drawReactionBar(ctx, focused, state)
+  drawActionMenu(ctx, focused, state)
 }
 
 async function renderPreview(ctx, state) {
@@ -368,6 +462,13 @@ async function renderPreview(ctx, state) {
   base.height = HEIGHT
   const baseCtx = base.getContext('2d')
   await renderFull(baseCtx, state)
+  // Reflow into the preview card's available height, so the latest bubbles survive.
+  const palette = palettes[state.platform] || palettes.messenger
+  const previewDark = state.appearance === 'dark'
+  baseCtx.fillStyle = previewDark ? '#090a0c' : palette.canvas
+  const headerBottom = state.platform === 'imessage' ? 300 : 246
+  baseCtx.fillRect(0,headerBottom,WIDTH,HEIGHT-headerBottom)
+  await drawMessages(baseCtx,{...state,keyboard:false},palette,previewDark,false,1480)
   ctx.clearRect(0, 0, WIDTH, HEIGHT)
   ctx.save()
   ctx.filter = 'blur(22px) brightness(0.42)'
@@ -385,20 +486,22 @@ async function renderPreview(ctx, state) {
   ctx.clip()
   ctx.drawImage(base, 0, 120, WIDTH, 1390, 62, 150, 956, 1230)
   ctx.restore()
-  const actions = ['Đánh dấu chưa đọc', 'Tắt thông báo', 'Lưu trữ']
+  const actions = state.platform === 'imessage' ? ['Đánh dấu chưa đọc', 'Ẩn cảnh báo', 'Xóa'] : state.platform === 'zalo' ? ['Đánh dấu chưa đọc', 'Tắt thông báo', 'Ẩn trò chuyện'] : ['Đánh dấu chưa đọc', 'Tắt thông báo', 'Lưu trữ']
   const y = 1425
-  fillRound(ctx, 112, y, 856, 282, 38, '#2b2b2dee')
+  const dark = state.appearance === 'dark'
+  fillRound(ctx, 112, y, 856, 282, 38, dark ? '#2b2b2dee' : '#f4f4f5ee')
   actions.forEach((action, index) => {
     if (index) {
-      ctx.strokeStyle = '#5c5c60'
+      ctx.strokeStyle = dark ? '#5c5c60' : '#c9c9cb'
       ctx.lineWidth = 2
       ctx.beginPath()
       ctx.moveTo(112, y + index * 94)
       ctx.lineTo(968, y + index * 94)
       ctx.stroke()
     }
-    drawText(ctx, action, 160, y + index * 94 + 58, { font: '36px -apple-system, sans-serif', color: '#fff' })
-    drawText(ctx, index === 0 ? '✉' : index === 1 ? '⌁' : '▣', 900, y + index * 94 + 57, { font: '38px -apple-system, sans-serif', color: '#fff', align: 'center' })
+    const color = state.platform === 'imessage' && index === 2 ? '#ff453a' : dark ? '#fff' : '#111'
+    drawText(ctx, action, 160, y + index * 94 + 58, { font: '36px -apple-system, sans-serif', color })
+    drawIcon(ctx,['unread','bell',state.platform === 'imessage' ? 'trash' : 'archive'][index],875,y+index*94+27,48,color)
   })
   fillRound(ctx, 405, 1885, 270, 13, 8, '#f7f7f8')
 }

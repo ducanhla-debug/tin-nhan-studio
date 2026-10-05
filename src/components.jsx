@@ -100,6 +100,7 @@ export function SetupPanel({ state, setState, onAvatar, onAddMessage }) {
     <aside className="panel setup-panel">
       <PanelSection title="Nền tảng">
         <Segmented value={state.platform} items={platformItems} onChange={(platform) => setState((s) => ({ ...s, platform }))} ariaLabel="Nền tảng tin nhắn" />
+        {state.platform === 'imessage' ? <Field label="Loại tin nhắn iPhone"><select aria-label="Loại tin nhắn iPhone" value={state.messageService || 'imessage'} onChange={(e) => setState((s) => ({ ...s, messageService: e.target.value }))}><option value="imessage">iMessage · Xanh dương</option><option value="sms">SMS · Xanh lá</option></select></Field> : null}
         <div className="subheading">Chế độ chụp</div>
         <Segmented value={state.mode} items={modeItems} onChange={(mode) => setState((s) => ({ ...s, mode }))} ariaLabel="Chế độ chụp" />
       </PanelSection>
@@ -108,7 +109,7 @@ export function SetupPanel({ state, setState, onAvatar, onAddMessage }) {
         <Field label="Tên hiển thị">
           <input value={state.name} maxLength={50} onChange={(e) => setState((s) => ({ ...s, name: e.target.value }))} />
         </Field>
-        <Field label="Trạng thái hoạt động">
+        {state.platform !== 'imessage' ? <Field label="Trạng thái hoạt động">
           <div className="select-wrap">
             <select value={state.activity} onChange={(e) => setState((s) => ({ ...s, activity: e.target.value }))}>
               <option>Đang hoạt động</option>
@@ -117,7 +118,7 @@ export function SetupPanel({ state, setState, onAvatar, onAddMessage }) {
               <option>Không hiển thị</option>
             </select><ChevronDown size={16} />
           </div>
-        </Field>
+        </Field> : null}
         <div className="avatar-row">
           <div className="avatar-preview">{state.avatar ? <img src={state.avatar} alt="Ảnh đại diện" /> : state.name.slice(0, 1).toUpperCase()}</div>
           <label className="button secondary file-button"><Upload size={16} /> Chọn ảnh<input type="file" accept="image/*" onChange={onAvatar} /></label>

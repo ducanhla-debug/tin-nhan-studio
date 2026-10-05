@@ -214,8 +214,8 @@ Vite đang dùng `base: './'`, phù hợp với project page `/tin-nhan-studio/`
 
 Đây là MVP hoàn chỉnh để thử nghiệm, nhưng chưa phải bản sao pixel-perfect của từng ứng dụng thật.
 
-1. Header và composer của ba nền tảng vẫn dùng chung nhiều thành phần; khác biệt chính hiện nằm ở màu và một số biểu tượng.
-2. Giao diện Tin nhắn đang dùng bong bóng xanh lá kiểu SMS; nếu cần iMessage màu xanh dương phải thêm tùy chọn SMS/iMessage.
+1. Cập nhật 05/10/2026: header/composer riêng cho ba nền tảng, Zalo header xanh và tin gửi xanh nhạt; Messages dùng contact control kiểu iOS 26, không có avatar bên bong bóng. Icon tự vẽ bằng path; chưa phải bản sao pixel-perfect và có thể khác các đợt rollout của ứng dụng.
+2. Đã có chọn nhanh iMessage xanh dương / SMS xanh lá. Thời gian Messenger/Messages nhóm theo khoảng cách trên 5 phút, Zalo đặt trong bong bóng. Focus giữ tin được chọn, menu tự tránh đáy và không sao chép một mảng nền sắc nét quanh tin.
 3. Icon “grip” trong danh sách mới là dấu hiệu trực quan; sắp xếp thực tế dùng nút lên/xuống, chưa có drag-and-drop.
 4. Data URL của nhiều ảnh lớn có thể vượt giới hạn `localStorage` của trình duyệt.
 5. Tin nhắn dài được tự động bỏ bớt các tin đầu để vừa ảnh; chưa có thanh chọn chính xác đoạn hội thoại cần chụp.
@@ -229,9 +229,9 @@ Vite đang dùng `base: './'`, phù hợp với project page `/tin-nhan-studio/`
 
 ### P0 — Độ chân thực
 
-- Tách renderer cho Messenger, Zalo và Messages thay vì chia sẻ quá nhiều header/composer.
+- Header/composer đã có nhánh riêng; tiếp tục đối chiếu ảnh chụp thật theo phiên bản ứng dụng.
 - Đối chiếu khoảng cách, font, icon, màu, trạng thái đã xem với từng ứng dụng trên iPhone 14 Pro.
-- Thêm tùy chọn iMessage xanh dương và SMS xanh lá.
+- Tùy chọn iMessage/SMS đã hoàn thành.
 
 ### P1 — Điều khiển ảnh
 
@@ -281,4 +281,3 @@ Một thay đổi chỉ được xem là hoàn tất khi:
 - Unit tests và production build đạt.
 - File ảnh xuất vẫn đúng 1080 × 1920.
 - GitHub Pages triển khai thành công và URL production mở được.
-

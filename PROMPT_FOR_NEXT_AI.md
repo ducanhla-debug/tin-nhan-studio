@@ -78,7 +78,7 @@ Sau đó kiểm thử bằng trình duyệt thật:
 
 ## Trước khi kết thúc
 
-- So sánh giao diện với `docs/design-concept.png` nếu có thay đổi hình ảnh.
+- `docs/design-concept.png` chỉ tham khảo bố cục editor. Giao diện chat phải đối chiếu ảnh chụp thật hoặc nguồn chính thức theo phiên bản ứng dụng, không dùng concept làm chuẩn nền tảng.
 - Ghi rõ file đã sửa, kiểm thử đã chạy, kết quả, giới hạn còn lại.
 - Nếu được yêu cầu triển khai, commit và push lên `main`, theo dõi GitHub Actions đến khi thành công, rồi mở production URL để xác minh.
 - Không tuyên bố hoàn tất chỉ vì build thành công; phải xác minh luồng người dùng và ảnh xuất thật.
@@ -86,4 +86,3 @@ Sau đó kiểm thử bằng trình duyệt thật:
 Hãy bắt đầu bằng cách tóm tắt hiện trạng dự án và nêu ngắn gọn kế hoạch cho yêu cầu mới nhất, sau đó chủ động thực hiện đến khi hoàn tất.
 
 ---
-
