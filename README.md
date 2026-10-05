@@ -2,6 +2,8 @@
 
 Webtool tiếng Việt tạo ảnh hội thoại theo giao diện iPhone 14 Pro/Dynamic Island. Ứng dụng chạy hoàn toàn trên trình duyệt, không gửi nội dung hoặc hình ảnh lên máy chủ.
 
+**Dùng thử:** https://ducanhla-debug.github.io/tin-nhan-studio/
+
 ## Tính năng
 
 - Ba giao diện: Messenger, Zalo và Tin nhắn iPhone.
@@ -30,3 +32,8 @@ pnpm build
 ## Triển khai
 
 Dự án là web tĩnh. Thư mục `dist` sau khi chạy `pnpm build` có thể được triển khai trên GitHub Pages hoặc bất kỳ dịch vụ lưu trữ web tĩnh nào.
+
+## Bàn giao cho AI khác
+
+- [Tài liệu kiến trúc, vận hành và roadmap](./AI_HANDOVER.md)
+- [Prompt copy–paste cho AI tiếp quản](./PROMPT_FOR_NEXT_AI.md)
