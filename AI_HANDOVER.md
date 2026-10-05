@@ -12,7 +12,7 @@
 - **Stack:** React 19, Vite 8, JavaScript, CSS thuần, Canvas 2D, Lucide React.
 - **Backend:** Không có. Toàn bộ dữ liệu và quá trình dựng ảnh chạy trong trình duyệt.
 - **Lưu dữ liệu:** `localStorage`, khóa `tin-nhan-studio-v1`.
-- **Kích thước ảnh xuất hiện hành:** 736 × 1600 px, tỷ lệ 0.46, khớp hai screenshot Messenger/Zalo người dùng cung cấp. Quyết định mới này thay thế tất cả kích thước 1080 × 1920 và 9:16 còn được nhắc trong phần lịch sử bên dưới. Canvas, CSS preview, nhãn UI và kiểm thử tải PNG/JPG phải dùng 736 × 1600; phóng đồng đều theo chiều rộng, không kéo dãn ảnh cũ.
+- **Kích thước ảnh xuất hiện hành:** 736 × 1600 px, tỷ lệ 0.46, khớp hai screenshot Messenger/Zalo người dùng cung cấp. Quyết định này thay thế kích thước và tỷ lệ cũ. Các kết quả kiểm thử lịch sử chưa được xác nhận lại không phải bằng chứng cho bản sửa mới. Canvas, CSS preview, nhãn UI và kiểm thử tải PNG/JPG phải dùng 736 × 1600; phóng đồng đều theo chiều rộng, không kéo dãn ảnh cũ.
 
 ## 2. Yêu cầu sản phẩm đã được chốt
 
@@ -31,7 +31,7 @@
 ### Thiết bị và định dạng
 
 - Phong cách iPhone 14 Pro có Dynamic Island.
-- Ảnh dọc 1080 × 1920.
+- Ảnh dọc 736 × 1600, iOS 26.
 - PNG mặc định, JPG tùy chọn.
 - Không thêm watermark hoặc nhãn “Nội dung mô phỏng”.
 - Cho phép hiện/ẩn bàn phím iPhone.
@@ -66,7 +66,7 @@ tin-nhan-studio/
 │  ├─ components.jsx              # Header, bảng thiết lập, bảng chỉnh sửa
 │  ├─ defaults.js                 # Dữ liệu mẫu, nhãn, preset, factory tin nhắn
 │  ├─ main.jsx                    # React entry point
-│  ├─ renderer.js                 # Tọa độ 393pt -> Canvas 1080 × 1920
+│  ├─ renderer.js                 # Tọa độ 393pt -> Canvas 736 × 1600
 │  ├─ icons.js                    # Icon outline tự vẽ, không phải SF Symbols
 │  ├─ typography.js               # Font Apple native / Inter 4.1 thay thế
 │  └─ styles.css                  # Design system và responsive
@@ -90,7 +90,7 @@ Lưu JSON vào localStorage
         ↓
 renderToCanvas(canvas, state)
         ↓
-Canvas 1080 × 1920
+Canvas 736 × 1600
         ↓
 Xem trước thu nhỏ / xuất PNG hoặc JPG
 ```
@@ -139,7 +139,7 @@ State chính có cấu trúc gần như sau:
 
 Nguyên tắc cần giữ:
 
-- Thuộc tính thật của canvas luôn là `1080 × 1920`; chỉ CSS mới thu nhỏ bản xem trước.
+- Thuộc tính thật của canvas luôn là `736 × 1600`; chỉ CSS mới thu nhỏ bản xem trước.
 - Không dựng ảnh xuất từ screenshot DOM vì sẽ phụ thuộc độ phân giải màn hình.
 - Ảnh tải lên phải được chuyển thành Data URL để Canvas có thể vẽ và localStorage có thể lưu.
 - Khi thay đổi renderer, luôn kiểm tra cả ba mode và cả light/dark.
@@ -174,11 +174,11 @@ pnpm build
 
 Kết quả bàn giao gần nhất:
 
-- 6/6 unit tests đạt.
+- Kết quả lịch sử: 6/6 unit tests đạt; bản cập nhật hiện có 19 kiểm thử, xem docs/QA-2026-10-05.md. Cỡ chat 15.5pt trên cả ba nền tảng. SF Pro Text/Display chỉ dùng cục bộ; người dùng đã đồng ý bản public dùng Inter trên Windows/Android và font hệ thống Apple ngày 06/10/2026. Trạng thái kiểm tra tải xuống và triển khai mới xem docs/RELEASE-2026-10-06.md.
 - Build production đạt.
 - Không có lỗi console trên localhost và production.
 - Thêm tin nhắn làm số dòng tăng từ 5 lên 6.
-- Ảnh tải xuống đã được đọc trực tiếp và xác nhận đúng 1080 × 1920.
+- Ảnh tải xuống của bản cũ đã được kiểm tra; kết quả đó không xác nhận file tải xuống của bản sửa hiện tại.
 - Viewport 390 × 844 không có tràn ngang.
 - GitHub Pages workflow chạy thành công sau khi Pages được bật bằng GitHub Actions.
 
@@ -193,7 +193,7 @@ Kết quả bàn giao gần nhất:
 7. Tải avatar và ảnh tin nhắn.
 8. Bật bàn phím, dark mode và từng Quick Pick.
 9. Xuất cả PNG và JPG.
-10. Đọc kích thước file PNG để xác nhận 1080 × 1920.
+10. Đọc kích thước file PNG để xác nhận 736 × 1600.
 11. Kiểm tra desktop và viewport mobile khoảng 390 px.
 12. Kiểm tra console không có error/warning liên quan ứng dụng.
 
@@ -270,7 +270,7 @@ Vite đang dùng `base: './'`, phù hợp với project page `/tin-nhan-studio/`
 5. Giữ dữ liệu ở máy người dùng trừ khi có yêu cầu rõ ràng khác.
 6. Không xóa hoặc ghi đè thay đổi không liên quan trong worktree.
 7. Sau mỗi thay đổi phải chạy `pnpm test`, `pnpm build` và kiểm thử giao diện thật.
-8. Với thay đổi renderer, phải tải một ảnh thật và xác minh header PNG là 1080 × 1920.
+8. Với thay đổi renderer, phải tải một ảnh thật và xác minh header PNG là 736 × 1600.
 9. Kiểm tra production sau khi GitHub Actions hoàn tất, không chỉ dựa vào build cục bộ.
 10. Ghi lại thay đổi, test đã chạy, rủi ro còn lại và URL production trong câu trả lời bàn giao.
 
@@ -283,5 +283,5 @@ Một thay đổi chỉ được xem là hoàn tất khi:
 - Không có lỗi console liên quan.
 - Không có tràn ngang trên mobile.
 - Unit tests và production build đạt.
-- File ảnh xuất vẫn đúng 1080 × 1920.
+- File ảnh xuất vẫn đúng 736 × 1600.
 - GitHub Pages triển khai thành công và URL production mở được.

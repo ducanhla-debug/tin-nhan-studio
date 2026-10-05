@@ -18,9 +18,11 @@ Webtool tiếng Việt tạo ảnh hội thoại theo giao diện iPhone 14 Pro/
 
 ## Giao diện iOS 26
 
-Bộ dựng dùng tọa độ giao diện rộng 393pt, cỡ chữ chat 17pt và phóng đồng đều lên ảnh 736 × 1600. Tỷ lệ đầu ra 0.46 thay cho yêu cầu 9:16 ban đầu; tăng chiều cao hội thoại, không kéo méo chữ/icon.
+Bộ dựng dùng tọa độ giao diện rộng 393pt, cỡ chữ chat 15.5pt và phóng đồng đều lên ảnh 736 × 1600. Tỷ lệ đầu ra 0.46 thay cho yêu cầu 9:16 ban đầu; không kéo méo chữ/icon. Dev localhost dùng SF Pro Text cho UI và Display riêng cho bàn phím khi đủ font cục bộ; xem docs/typography-sources.md.
 
 Trên thiết bị Apple, ảnh dùng font hệ thống và emoji Apple có sẵn. Trên Windows/Android, font Inter 4.1 được đóng gói tại chỗ để thay thế; không phải SF Pro. Không phát hành font Apple trong repo.
+
+Ngày 06/10/2026, người dùng xác nhận không có giấy phép riêng cho nhúng SF Pro công khai và đồng ý triển khai với font thay thế. Khi xuất ảnh, link tải file đã tạo vẫn hiện để tải lại nếu trình duyệt chặn lượt tải tự động.
 
 Độ khớp pixel của Messenger/Zalo 2026 chưa được xác minh bằng ảnh chụp ứng dụng thực tế trên iPhone 14 Pro. Nguồn và giới hạn được ghi trong [tài liệu tham chiếu](./docs/platform-references.md).
 

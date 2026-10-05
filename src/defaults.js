@@ -21,6 +21,7 @@ export const seedMessages = [
 export const initialState = {
   platform: 'messenger',
   messageService: 'imessage',
+  inboxCount: 1037,
   captureEndId: '',
   deliveryState: 'none',
   mode: 'full',

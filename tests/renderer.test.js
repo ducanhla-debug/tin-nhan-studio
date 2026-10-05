@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { canvasSize, wrapLines, layoutMessages, logicalSize, statusValues } from '../src/renderer.js'
+import { canvasSize, wrapLines, layoutMessages, logicalSize, statusValues, composerTop, conversationTop } from '../src/renderer.js'
 import { initialState } from '../src/defaults.js'
 
 test('kích thước ảnh xuất khớp hai screenshot 736 × 1600', () => {
@@ -36,7 +36,7 @@ test('chuỗi dài không có dấu cách không vượt chiều rộng cho phé
   assert.ok(lines.every(line=>ctx.measureText(line).width<=160))
 })
 
-test('bố cục iPhone dùng chữ 17pt, giữ lề và chỉ đặt avatar cuối nhóm', () => {
+test('Messenger giữ lề và chỉ đặt avatar cuối nhóm', () => {
   const ctx={measureText:text=>({width:text.length*8})}
   const state={...initialState,platform:'messenger',messages:[
     {id:'a',sender:'them',text:'Tin đầu',time:'10:00'},
@@ -44,7 +44,7 @@ test('bố cục iPhone dùng chữ 17pt, giữ lề và chỉ đặt avatar cu�
     {id:'c',sender:'me',text:'x'.repeat(90),time:'10:02'},
   ]}
   const layouts=layoutMessages(ctx,state,104,600)
-  assert.equal(layouts[0].size,17)
+  assert.equal(layouts[0].size,15.5)
   assert.equal(layouts[0].groupEnd,false)
   assert.equal(layouts[1].groupEnd,true)
   assert.equal(layouts[1].timeHeight,0)
@@ -84,4 +84,64 @@ test('chọn vùng chụp và focus giữ đúng tin cũ', () => {
   const focused=layoutMessages(ctx,{...initialState,messages,mode:'focus',selectedId:'1'},104,600)
   const target=focused.find(item=>item.message.id==='1')
   assert.ok(target&&target.y>=104&&target.y+target.h<=600)
+})
+
+test('mốc giờ đầu SMS và iMessage nằm dưới nhãn dịch vụ, không chồng chữ', () => {
+  const ctx={measureText:text=>({width:text.length*8})}
+  for(const messageService of ['sms','imessage']) {
+    const state={...initialState,platform:'imessage',messageService,mode:'full',messages:[
+      {id:'first',sender:'me',text:'Bạn ơi mình xin review app',time:'23:59'},
+    ]}
+    const item=layoutMessages(ctx,state,conversationTop(state),760)[0]
+    const serviceBaseline=messageService==='sms'?164:176
+    const timestampBaseline=item.y-12
+    assert.ok(timestampBaseline-11>=serviceBaseline+6, `${messageService}: nhãn dịch vụ và mốc giờ chồng nhau`)
+  }
+})
+
+test('SMS và iMessage ngắn bắt đầu phía trên, hội thoại dài vẫn giữ tin mới nhất', () => {
+  const ctx={measureText:text=>({width:text.length*8})}
+  const messages=[{id:'a',sender:'me',text:'Xin chào',time:'10:00'},{id:'b',sender:'them',text:'Chào bạn',time:'10:01'}]
+  for(const messageService of ['sms','imessage']) {
+    const state={...initialState,platform:'imessage',messageService,messages}
+    const short=layoutMessages(ctx,state,190,760)
+    assert.ok(short[0].y<250)
+    const long=layoutMessages(ctx,{...state,messages:Array.from({length:40},(_,i)=>({...messages[i%2],id:String(i)}))},190,760)
+    assert.equal(long.at(-1).message.id,'39')
+    assert.ok(long.at(-1).y+long.at(-1).h<=760)
+  }
+})
+
+test('bàn phím dành đủ chiều cao, không che vùng tin nhắn', () => {
+  assert.ok(logicalSize.height-composerTop({...initialState,keyboard:true})>=350)
+  const ctx={measureText:text=>({width:text.length*8})}
+  for(const platform of ['messenger','zalo','imessage']){
+    const state={...initialState,platform,keyboard:true}
+    const bottom=composerTop(state)-8
+    const items=layoutMessages(ctx,state,190,bottom)
+    assert.ok(items.every(item=>item.y+item.h<=bottom))
+  }
+})
+
+test('Messages dành chỗ cho nhãn giao ở nhóm gửi cuối dù có tin nhận phía sau', () => {
+  const ctx={measureText:text=>({width:text.length*8})}
+  const state={...initialState,platform:'imessage',deliveryState:'delivered',messages:[
+    {id:'sent',sender:'me',text:'Hẹn bạn ngày mai nhé.',time:'10:00'},
+    {id:'received',sender:'them',text:'Được nhé',time:'10:01'},
+  ]}
+  const items=layoutMessages(ctx,state,170,770)
+  assert.equal(items[0].showDelivery,true)
+  assert.equal(items[1].showDelivery,false)
+  assert.ok(items[1].y-(items[0].y+items[0].h)>=28)
+})
+
+test('Messenger giới hạn tin nhận và giữ đủ chiều rộng trích dẫn độc lập câu trả lời ngắn', () => {
+  const ctx={measureText:text=>({width:text.length*8})}
+  const items=layoutMessages(ctx,{...initialState,messages:[
+    {id:'a',sender:'them',text:'một câu khá dài '.repeat(10),time:''},
+    {id:'b',sender:'me',text:'Ok',time:'',replyText:'một câu trích dẫn dài hơn'},
+  ]},95,770)
+  assert.ok(items[0].w<=264)
+  assert.ok(items[0].lines.length>1)
+  assert.ok(items[1].replyWidth>items[1].w)
 })

@@ -1,9 +1,12 @@
 @font-face {
   font-family: 'Studio Inter';
-  src: url('/fonts/InterVariable.woff2') format('woff2');
+  src: url('../public/fonts/InterVariable.woff2') format('woff2');
   font-weight: 100 900;
   font-display: swap;
 }
+
+.export-file { margin: 0; padding: 10px 24px; background: #fff; text-align: center; overflow-wrap: anywhere; }
+.export-file a { color: #0563da; }
 
 :root {
   font-family: -apple-system, BlinkMacSystemFont, 'Studio Inter', sans-serif;

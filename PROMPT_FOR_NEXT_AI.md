@@ -28,7 +28,7 @@ Sau đó kiểm tra `git status` và giữ nguyên mọi thay đổi không liê
 - Ba giao diện: Messenger, Zalo và Tin nhắn iPhone.
 - Ba chế độ: Toàn bộ, Làm nổi bật và Xem trước Haptic Touch/3D Touch.
 - Thiết bị: iPhone 14 Pro có Dynamic Island.
-- Ảnh xuất: dọc 1080 × 1920, PNG/JPG.
+- Ảnh xuất: dọc 736 × 1600, PNG/JPG.
 - Có Quick Pick cho thời gian, pin, sóng, Wi‑Fi/4G/5G và sáng/tối.
 - Có thể sửa tên, avatar, trạng thái, người gửi, nội dung, ảnh, thời gian, cảm xúc và thứ tự tin nhắn.
 - Có thể hiện/ẩn bàn phím iPhone.
@@ -43,7 +43,7 @@ Sau đó kiểm tra `git status` và giữ nguyên mọi thay đổi không liê
 - `components.jsx` chứa UI điều khiển.
 - `defaults.js` chứa seed/preset.
 - `renderer.js` dựng ảnh bằng Canvas 2D.
-- Canvas thật luôn là 1080 × 1920; CSS chỉ thu nhỏ bản xem trước.
+- Canvas thật luôn là 736 × 1600; CSS chỉ thu nhỏ bản xem trước.
 - GitHub Pages deploy từ workflow trong `.github/workflows/deploy.yml`.
 
 ## Nhiệm vụ của bạn
@@ -73,7 +73,7 @@ Sau đó kiểm thử bằng trình duyệt thật:
 - Control mới làm thay đổi UI thật.
 - Kiểm tra cả desktop và mobile 390 px.
 - Kiểm tra ba nền tảng và ba chế độ nếu renderer bị sửa.
-- Tải ảnh PNG và xác nhận file có kích thước 1080 × 1920.
+- Tải ảnh PNG và xác nhận file có kích thước 736 × 1600.
 - Kiểm tra bản production sau khi deploy.
 
 ## Trước khi kết thúc
