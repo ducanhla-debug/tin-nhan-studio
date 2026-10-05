@@ -9,8 +9,8 @@ const SCALE = canvasSize.width / W
 const images = new Map()
 const hitRegions = new WeakMap()
 const themes = {
-  messenger: {accent:'#0084ff',bg:'#ffffff',incoming:'#f0f0f0',outgoing:'#0084ff'},
-  zalo: {accent:'#0088ff',bg:'#e2e9f1',incoming:'#ffffff',outgoing:'#d3eaff'},
+  messenger: {accent:'#2864ef',bg:'#ffffff',incoming:'#f2f2f6',outgoing:'#2864ef'},
+  zalo: {accent:'#0088ff',bg:'#e2e9f1',incoming:'#ffffff',outgoing:'#cff0fb'},
   imessage: {accent:'#007aff',bg:'#ffffff',incoming:'#e9e9eb',outgoing:'#007aff'},
 }
 function theme(state) {
@@ -113,8 +113,8 @@ async function header(ctx,state,t) {
   const max=zalo?185:195
   text(ctx,truncated(ctx,state.name||'Người dùng',max,17,600),x,activity?77:87,17,fg,600)
   if(activity)text(ctx,truncated(ctx,activity,max,12),x,94,12,zalo?'#e1f2ff':t.muted)
-  icon(ctx,'phone',zalo?277:304,71,21,zalo?'#fff':t.accent)
-  icon(ctx,'video',zalo?317:351,70,23,zalo?'#fff':t.accent)
+  icon(ctx,'phone',zalo?277:318,71,21,zalo?'#fff':t.accent,!zalo)
+  icon(ctx,'video',zalo?317:355,70,23,zalo?'#fff':t.accent,!zalo)
   if(zalo)icon(ctx,'menu',361,71,22,'#fff')
   return 104
 }
@@ -130,16 +130,18 @@ export function layoutMessages(ctx,state,top,bottom) {
     const previous=messages[i-1],next=messages[i+1]
     const currentTime=timeMinutes(message.time),previousTime=timeMinutes(previous?.time)
     const timestamp=Boolean(message.time&&(!previous||currentTime===null||previousTime===null||Math.abs(currentTime-previousTime)>5))
-    const groupStart=!previous||previous.sender!==message.sender||timestamp
-    const groupEnd=!next||next.sender!==message.sender||(timeMinutes(next.time)!==null&&currentTime!==null&&Math.abs(timeMinutes(next.time)-currentTime)>5)
+    const groupStart=!previous||previous.sender!==message.sender||timestamp||Boolean(message.dateSeparator)
+    const groupEnd=!next||next.sender!==message.sender||Boolean(next.dateSeparator)||(timeMinutes(next.time)!==null&&currentTime!==null&&Math.abs(timeMinutes(next.time)-currentTime)>5)
     const isImage=message.type==='image'&&message.image
     const lines=isImage?[]:wrapLines(ctx,message.text,maxWidth-padding*2)
     const width=isImage?244:Math.max(apple?43:52,...lines.map(line=>ctx.measureText(line).width+padding*2))
-    const height=isImage?183:Math.max(36,lines.length*lineHeight+14+(zalo?17:0))
-    const timeHeight=timestamp?30:0
-    const gap=groupStart?8:2
+    const showTime=zalo&&groupEnd&&Boolean(message.time)
+    const height=isImage?183:Math.max(34,lines.length*lineHeight+12+(showTime?17:0))
+    const timeHeight=message.dateSeparator?38:!zalo&&timestamp?30:0
+    const gap=groupStart?10:zalo?4:2
     cursor+=timeHeight+gap
-    const item={message,lines,w:width,h:height,x:message.sender==='me'?W-12-width:apple?12:44,y:cursor,groupStart,groupEnd,timeHeight,padding,size,lineHeight}
+    const item={message,lines,w:width,h:height,x:message.sender==='me'?W-(zalo||apple?12:7)-width:apple?12:zalo?38:50,y:cursor,groupStart,groupEnd,timeHeight,showTime,padding,size,lineHeight}
+    if(state.platform==='messenger'&&message.replyText){item.replyHeight=54;item.y+=54;cursor+=54}
     cursor+=height+(message.reaction?13:0)
     return item
   })
@@ -156,7 +158,7 @@ function bubbleShape(ctx,item,state,color) {
   const {x,y,w,h,groupStart,groupEnd,message}=item
   const apple=state.platform==='imessage',zalo=state.platform==='zalo',out=message.sender==='me'
   const r=apple?18:zalo?10:18
-  const radii=out?[r,groupStart?r:5,groupEnd?r:5,r]:[groupStart?r:5,r,r,groupEnd?r:5]
+  const radii=zalo?[9,9,9,9]:out?[r,groupStart?r:2,groupEnd?r:2,r]:[groupStart?r:2,r,r,groupEnd?r:2]
   rect(ctx,x,y,w,h,radii,color,zalo?state.appearance==='dark'?'#394350':'#cfd6df':null)
   if(apple&&groupEnd&&message.type!=='image'){
     ctx.fillStyle=color;ctx.beginPath()
@@ -168,22 +170,32 @@ function bubbleShape(ctx,item,state,color) {
 async function bubble(ctx,item,state,t,hideReaction=false) {
   const {message,x,y,w,h,lines,padding,lineHeight,size}=item
   const out=message.sender==='me',apple=state.platform==='imessage',zalo=state.platform==='zalo'
-  bubbleShape(ctx,item,state,out?t.outgoing:t.incoming)
+  let color=out?t.outgoing:t.incoming
+  if(out&&state.platform==='messenger'){
+    color=ctx.createLinearGradient(0,104,0,composerTop(state));color.addColorStop(0,'#3475fb');color.addColorStop(1,'#1011c8')
+  }
+  bubbleShape(ctx,item,state,color)
   if(message.type==='image'&&message.image)photo(ctx,await imageFor(message.image),x,y,w,h,14)
   else lines.forEach((line,i)=>text(ctx,line,x+padding,y+24+i*lineHeight,size,out&&!zalo?'#fff':t.fg))
-  if(zalo&&message.time)text(ctx,message.time,x+w-9,y+h-8,10,t.muted,400,'right')
+  if(item.showTime)text(ctx,message.time,x+padding,y+h-8,10,t.muted)
   if(message.reaction&&!hideReaction){
-    const rx=x+w-18,ry=apple?y-8:y+h-6
-    rect(ctx,rx,ry,28,21,11,t.dark?'#38383b':'#fff',t.dark?'#000':'#e5e5e9')
-    text(ctx,message.reaction,rx+14,ry+16,15,t.fg,400,'center')
+    const rx=x+w-(zalo?66:18),ry=apple?y-8:y+h-6
+    rect(ctx,rx,ry,zalo?32:28,21,11,t.dark?'#38383b':'#fff',t.dark?'#000':'#e5e5e9')
+    text(ctx,message.reaction,rx+(zalo?12:14),ry+16,15,t.fg,400,'center')
+    if(zalo){text(ctx,message.reactionCount||1,rx+25,ry+15,10,t.fg);rect(ctx,x+w-27,ry-7,26,26,13,t.dark?'#38383b':'#f8f9fc','#c4cbd4');text(ctx,message.reaction,x+w-14,ry+12,16,t.fg,400,'center')}
   }
 }
 async function messages(ctx,state,t,top,bottom) {
   const layouts=layoutMessages(ctx,state,top,bottom)
   ctx.save();ctx.beginPath();ctx.rect(0,top,W,bottom-top);ctx.clip()
   for(const item of layouts){
-    if(item.timeHeight)text(ctx,state.platform==='imessage'?`Hôm nay ${item.message.time}`:item.message.time,W/2,item.y-12,11,t.muted,500,'center')
-    if(item.message.sender==='them'&&state.platform!=='imessage'&&item.groupEnd)await avatar(ctx,state,8,item.y+item.h-29,28,t)
+    if(item.timeHeight){
+      const label=item.message.dateSeparator||(state.platform==='imessage'?`Hôm nay ${item.message.time}`:item.message.time)
+      if(state.platform==='zalo'){ctx.font=font(11);const width=ctx.measureText(label).width+20;rect(ctx,(W-width)/2,item.y-31,width,20,10,t.dark?'#56616c':'#b4bbc3');text(ctx,label,W/2,item.y-17,11,'#fff',400,'center')}
+      else text(ctx,label,W/2,item.y-(item.replyHeight||0)-12,11,t.muted,500,'center')
+    }
+    if(item.replyHeight){text(ctx,`↪ Bạn đã trả lời ${item.message.replyName||state.name}`,W-12,item.y-40,11,t.muted,400,'right');rect(ctx,item.x,item.y-33,item.w,37,18,t.dark?'#202024':'#fafafa');text(ctx,truncated(ctx,item.message.replyText,item.w-22,14),item.x+11,item.y-12,14,t.muted)}
+    if(item.message.sender==='them'&&state.platform!=='imessage'&&(state.platform==='zalo'?item.groupStart:item.groupEnd))await avatar(ctx,state,state.platform==='zalo'?10:14,state.platform==='zalo'?item.y:item.y+item.h-25,23,t)
     await bubble(ctx,item,state,t)
   }
   const last=layouts.at(-1)
@@ -207,12 +219,15 @@ function composer(ctx,state,t) {
     text(ctx,state.messageService==='sms'?'Tin nhắn văn bản • SMS':'iMessage',70,y+32,17,muted)
     icon(ctx,'mic',W-39,y+17,18,muted)
   } else if(state.platform==='zalo'){
-    icon(ctx,'smile',10,y+16,24,t.fg);text(ctx,'Tin nhắn',47,y+36,18,muted)
-    icon(ctx,'dots',W-123,y+17,24,t.muted);icon(ctx,'mic',W-80,y+15,25,t.fg);icon(ctx,'image',W-35,y+16,24,t.fg)
+    const controls=t.dark?'#aaa':'#666'
+    icon(ctx,'smile',10,y+16,24,controls);text(ctx,'Tin nhắn',43,y+36,17,muted)
+    icon(ctx,'dots',W-123,y+17,24,controls);icon(ctx,'mic',W-80,y+15,25,controls);icon(ctx,'image',W-35,y+16,24,controls)
   } else {
-    icon(ctx,'chevron',8,y+20,22,t.accent);icon(ctx,'camera',38,y+20,21,t.accent);icon(ctx,'image',69,y+20,21,t.accent);icon(ctx,'mic',100,y+20,21,t.accent)
-    rect(ctx,132,y+12,W-173,36,18,t.dark?'#262629':'#f0f0f0')
-    text(ctx,'Aa',145,y+37,17,muted);icon(ctx,'smile',W-69,y+21,20,t.accent);icon(ctx,'thumb',W-29,y+21,21,t.accent,true)
+    const accent='#1518bf'
+    rect(ctx,13,y+20,20,20,10,accent);icon(ctx,'plus',14,y+21,18,'#fff')
+    icon(ctx,'camera',51,y+20,22,accent,true);icon(ctx,'image',91,y+20,22,accent,true);icon(ctx,'mic',132,y+19,22,accent,true)
+    rect(ctx,168,y+12,W-218,36,18,t.dark?'#262629':'#f2f2f6')
+    text(ctx,'Aa',183,y+37,17,muted);icon(ctx,'smile',W-79,y+21,20,accent,true);icon(ctx,'thumb',W-34,y+21,21,accent,true)
   }
   if(state.keyboard)keyboard(ctx,t);else home(ctx,t)
 }
@@ -236,6 +251,7 @@ function keyboard(ctx,t) {
 async function full(ctx,state,{bottom,skipComposer=false,skipStatus=false}={}) {
   const t=theme(state)
   ctx.fillStyle=t.bg;ctx.fillRect(0,0,W,H)
+  if(state.platform==='messenger'&&!t.dark){const g=ctx.createLinearGradient(0,0,W,104);g.addColorStop(0,'#ffffff');g.addColorStop(1,'#a2ccfa');ctx.fillStyle=g;ctx.fillRect(0,0,W,104)}
   if(state.platform==='zalo'){
     const gradient=ctx.createLinearGradient(0,0,W,104);gradient.addColorStop(0,'#0084ff');gradient.addColorStop(1,'#00b5ee')
     ctx.fillStyle=gradient;ctx.fillRect(0,0,W,104)

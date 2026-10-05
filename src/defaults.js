@@ -26,7 +26,7 @@ export const initialState = {
   mode: 'full',
   name: 'Minh Anh',
   avatar: '',
-  activity: 'Đang hoạt động',
+  activity: 'Không hiển thị',
   time: '21:25',
   carrier: '5G',
   signal: 4,

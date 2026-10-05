@@ -18,7 +18,17 @@ const paths = {
 export function icon(ctx,name,x,y,size,color,filled=false) {
   ctx.save();ctx.translate(x,y);ctx.scale(size/24,size/24)
   ctx.strokeStyle=color;ctx.fillStyle=color;ctx.lineWidth=name==='dots'?3.8:1.7;ctx.lineCap='round';ctx.lineJoin='round'
+  if(filled&&name==='smile'){
+    ctx.beginPath();ctx.arc(12,12,11,0,Math.PI*2);ctx.fill()
+    ctx.fillStyle='#fff';for(const x of [8,16]){ctx.beginPath();ctx.ellipse(x,9,1.3,2,0,0,Math.PI*2);ctx.fill()}
+    ctx.strokeStyle='#fff';ctx.beginPath();ctx.arc(12,12,5,.2*Math.PI,.8*Math.PI);ctx.stroke();ctx.restore();return
+  }
+  if(filled&&name==='image'){
+    ctx.beginPath();ctx.roundRect(2,2,20,20,3);ctx.fill();ctx.fillStyle='#fff'
+    ctx.beginPath();ctx.arc(8,8,2,0,Math.PI*2);ctx.fill()
+    ctx.beginPath();ctx.moveTo(4,18);ctx.lineTo(10,12);ctx.lineTo(14,16);ctx.lineTo(17,13);ctx.lineTo(20,17);ctx.lineTo(20,20);ctx.lineTo(4,20);ctx.closePath();ctx.fill();ctx.restore();return
+  }
   const path=new Path2D(paths[name] || paths.dots)
-  if(filled)ctx.fill(path)
+  if(filled)ctx.fill(path,'evenodd')
   ctx.stroke(path);ctx.restore()
 }

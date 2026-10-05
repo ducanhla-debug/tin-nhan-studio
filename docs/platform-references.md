@@ -1,5 +1,13 @@
 # Giao diện nền tảng — cập nhật 05/10/2026
 
+## Đối chiếu hai screenshot mới do người dùng cung cấp
+
+Hai ảnh mới là chuẩn trực tiếp cho màn hình hội thoại Messenger/Zalo, không phải ảnh quảng bá. Không đưa tên, nội dung riêng tư hoặc screenshot gốc vào repository công khai.
+
+- Messenger: header xanh nhạt chuyển sắc; bong bóng gửi đổi xanh theo vị trí dọc; góc nối nhóm nhỏ; avatar cuối nhóm; thanh soạn có nút cộng tròn, camera/micro đặc, input ngắn. Mặc định ẩn trạng thái hoạt động. Có trích dẫn trả lời tùy chọn.
+- Zalo: nền xám xanh, tin gửi cyan nhạt có viền; góc bo đều kể cả cùng nhóm; avatar đầu nhóm; giờ nằm trái trong tin cuối nhóm; mốc ngày dạng pill xám và cảm xúc có số đếm/nút tròn.
+- Khác biệt có chủ ý: vẫn giữ Dynamic Island và home indicator theo yêu cầu iPhone 14 Pro; đầu ra 9:16 ngắn hơn tỷ lệ vật lý thiết bị. Windows dùng Inter, chưa xác minh pixel-perfect trên Safari iPhone. Icon tự vẽ vẫn là xấp xỉ, menu nhấn giữ không có screenshot mới để xác minh.
+
 Nguồn đối chiếu:
 - Messenger: https://apps.apple.com/us/app/messenger/id454638411 — ảnh preview iPhone của Meta.
 - Zalo: https://apps.apple.com/vn/app/zalo/id579523206 — ảnh preview iPhone của Zalo Group, phiên bản được liệt kê 26.10.01.

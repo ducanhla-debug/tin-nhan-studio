@@ -40,7 +40,32 @@ test('bố cục iPhone dùng chữ 17pt, giữ lề và chỉ đặt avatar cu�
   assert.equal(layouts[0].groupEnd,false)
   assert.equal(layouts[1].groupEnd,true)
   assert.equal(layouts[1].timeHeight,0)
-  assert.ok(layouts.every(item=>item.x>=12&&item.x+item.w<=logicalSize.width-12))
+  assert.ok(layouts.every(item=>item.x>=12&&item.x+item.w<=logicalSize.width-7))
+  assert.equal(layouts[0].x,50)
+  assert.equal(layouts[2].x+layouts[2].w,logicalSize.width-7)
+})
+
+test('Zalo đặt giờ trong tin cuối nhóm, mốc ngày tách nhóm và lề avatar đầu nhóm', () => {
+  const ctx={measureText:text=>({width:text.length*8})}
+  const state={...initialState,platform:'zalo',messages:[
+    {id:'a',sender:'them',text:'Tin đầu',time:'10:00'},
+    {id:'b',sender:'them',text:'Tin tiếp',time:'10:01'},
+    {id:'c',sender:'them',text:'Ngày mới',time:'10:02',dateSeparator:'10:02 05/10/2026'},
+  ]}
+  const items=layoutMessages(ctx,state,104,600)
+  assert.equal(items[0].showTime,false)
+  assert.equal(items[0].timeHeight,0)
+  assert.equal(items[0].x,38)
+  assert.equal(items[1].showTime,true)
+  assert.equal(items[2].groupStart,true)
+  assert.equal(items[2].timeHeight,38)
+})
+
+test('Messenger dành khoảng riêng cho trích dẫn trả lời', () => {
+  const ctx={measureText:text=>({width:text.length*8})}
+  const items=layoutMessages(ctx,{...initialState,messages:[{id:'r',sender:'me',text:'Trả lời',time:'10:00',replyText:'Tin được trích dẫn'}]},104,600)
+  assert.equal(items[0].replyHeight,54)
+  assert.ok(items[0].y-54>=104)
 })
 
 test('chọn vùng chụp và focus giữ đúng tin cũ', () => {

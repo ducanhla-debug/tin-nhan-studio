@@ -190,6 +190,12 @@ export function StatusPanel({ state, setState, onMessageImage, onDelete, onMove,
               <Field label="Thời gian"><input value={selected.time} onChange={(e) => patchSelected({ time: e.target.value })} /></Field>
               <Field label="Cảm xúc"><input placeholder="❤️ 👍 😆" value={selected.reaction || ''} onChange={(e) => patchSelected({ reaction: e.target.value.slice(0, 3) })} /></Field>
             </div>
+            <details>
+              <summary>Chi tiết hiển thị</summary>
+              <Field label="Mốc ngày phía trên"><input aria-label="Mốc ngày phía trên" placeholder="07:48 29/09/2026" maxLength={40} value={selected.dateSeparator || ''} onChange={e => patchSelected({dateSeparator:e.target.value})} /></Field>
+              {state.platform === 'messenger' ? <><Field label="Trích dẫn trả lời"><input aria-label="Trích dẫn trả lời" maxLength={200} value={selected.replyText || ''} onChange={e => patchSelected({replyText:e.target.value})} /></Field><Field label="Tên người được trả lời"><input maxLength={50} value={selected.replyName || ''} onChange={e => patchSelected({replyName:e.target.value})} /></Field></> : null}
+              {state.platform === 'zalo' ? <Field label="Số cảm xúc"><input type="number" min="1" max="999" value={selected.reactionCount || 1} onChange={e => patchSelected({reactionCount:Math.max(1,Math.min(999,Number(e.target.value)||1))})} /></Field> : null}
+            </details>
             <div className="editor-actions">
               <button className="button danger" type="button" onClick={onDelete}><Trash2 size={16} /> Xóa</button>
               <span />
