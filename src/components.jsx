@@ -21,6 +21,7 @@ import {
   Wifi,
 } from 'lucide-react'
 import { modeLabels, platformLabels, statusPresets } from './defaults.js'
+import { hasAppleTypography } from './typography.js'
 
 export function IconButton({ label, children, className = '', ...props }) {
   return (
@@ -71,7 +72,7 @@ export function Field({ label, children, hint }) {
   )
 }
 
-export function AppHeader({ onReset, onDownload, exporting }) {
+export function AppHeader({ onReset, onDownload, exporting, format = 'png' }) {
   return (
     <header className="app-header">
       <div className="brand">
@@ -82,7 +83,7 @@ export function AppHeader({ onReset, onDownload, exporting }) {
       <div className="header-actions">
         <button className="button ghost" type="button" onClick={onReset}><RotateCcw size={17} /> Đặt lại</button>
         <button className="button primary" type="button" onClick={onDownload} disabled={exporting}>
-          <Download size={18} /> {exporting ? 'Đang tạo ảnh…' : 'Tải ảnh PNG'}
+          <Download size={18} /> {exporting ? 'Đang tạo ảnh…' : `Tải ảnh ${format.toUpperCase()}`}
         </button>
       </div>
     </header>
@@ -103,6 +104,7 @@ export function SetupPanel({ state, setState, onAvatar, onAddMessage }) {
         {state.platform === 'imessage' ? <Field label="Loại tin nhắn iPhone"><select aria-label="Loại tin nhắn iPhone" value={state.messageService || 'imessage'} onChange={(e) => setState((s) => ({ ...s, messageService: e.target.value }))}><option value="imessage">iMessage · Xanh dương</option><option value="sms">SMS · Xanh lá</option></select></Field> : null}
         <div className="subheading">Chế độ chụp</div>
         <Segmented value={state.mode} items={modeItems} onChange={(mode) => setState((s) => ({ ...s, mode }))} ariaLabel="Chế độ chụp" />
+        <p className="font-note">iOS 26 · {hasAppleTypography ? 'Font hệ thống Apple' : 'Font Inter thay thế trên máy này. Mở bằng iPhone để dùng font và emoji Apple.'}</p>
       </PanelSection>
 
       <PanelSection title="Cuộc trò chuyện">
@@ -127,6 +129,8 @@ export function SetupPanel({ state, setState, onAvatar, onAddMessage }) {
       </PanelSection>
 
       <PanelSection title="Tin nhắn" action={<button className="button primary compact" type="button" onClick={onAddMessage}><CirclePlus size={17} /> Thêm</button>} className="messages-section">
+        <Field label="Chụp đến tin nhắn"><select aria-label="Chụp đến tin nhắn" value={state.captureEndId || ''} onChange={(e) => setState(s => ({ ...s, captureEndId: e.target.value }))}><option value="">Tin mới nhất</option>{state.messages.map((m,i)=><option key={m.id} value={m.id}>{i+1}. {m.type==='image'?'Hình ảnh':m.text.slice(0,38)}</option>)}</select></Field>
+        <Field label="Trạng thái tin gửi"><select aria-label="Trạng thái tin gửi" value={state.deliveryState || 'none'} onChange={(e) => setState(s=>({...s,deliveryState:e.target.value}))}><option value="none">Không hiển thị</option><option value="delivered">Đã gửi / Đã nhận</option><option value="seen">Đã xem / Đã đọc</option></select></Field>
         <div className="message-list">
           {state.messages.map((message, index) => (
             <button
@@ -180,7 +184,7 @@ export function StatusPanel({ state, setState, onMessageImage, onDelete, onMove,
             {selected.type === 'image' ? (
               <label className="image-drop"><ImagePlus size={24} /><span>{selected.image ? 'Thay hình ảnh' : 'Chọn hình ảnh'}</span><input type="file" accept="image/*" onChange={onMessageImage} /></label>
             ) : (
-              <Field label="Nội dung"><textarea rows="4" maxLength={1000} value={selected.text} onChange={(e) => patchSelected({ text: e.target.value })} /></Field>
+              <Field label="Nội dung"><textarea aria-label="Nội dung" rows="4" maxLength={1000} value={selected.text} onChange={(e) => patchSelected({ text: e.target.value })} /></Field>
             )}
             <div className="field-grid two">
               <Field label="Thời gian"><input value={selected.time} onChange={(e) => patchSelected({ time: e.target.value })} /></Field>

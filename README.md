@@ -14,6 +14,15 @@ Webtool tiếng Việt tạo ảnh hội thoại theo giao diện iPhone 14 Pro/
 - Ảnh đại diện tùy chỉnh, bàn phím iPhone tùy chọn.
 - Xuất PNG/JPG chính xác 1080 × 1920, không watermark.
 - Tự lưu dữ liệu trong trình duyệt và hỗ trợ giao diện điện thoại.
+- Chạm chọn tin, nhấn giữ để làm nổi bật, chọn tin cuối vùng chụp và trạng thái đã gửi/đã xem.
+
+## Giao diện iOS 26
+
+Bộ dựng dùng tọa độ giao diện rộng 393pt, cỡ chữ chat 17pt và phóng đồng đều lên ảnh 1080 × 1920. Tỷ lệ 9:16 làm vùng hội thoại ngắn hơn màn hình vật lý iPhone 14 Pro; không kéo méo chữ/icon.
+
+Trên thiết bị Apple, ảnh dùng font hệ thống và emoji Apple có sẵn. Trên Windows/Android, font Inter 4.1 được đóng gói tại chỗ để thay thế; không phải SF Pro. Không phát hành font Apple trong repo.
+
+Độ khớp pixel của Messenger/Zalo 2026 chưa được xác minh bằng ảnh chụp ứng dụng thực tế trên iPhone 14 Pro. Nguồn và giới hạn được ghi trong [tài liệu tham chiếu](./docs/platform-references.md).
 
 ## Chạy trên máy
 

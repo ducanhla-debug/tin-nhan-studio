@@ -21,6 +21,8 @@ export const seedMessages = [
 export const initialState = {
   platform: 'messenger',
   messageService: 'imessage',
+  captureEndId: '',
+  deliveryState: 'none',
   mode: 'full',
   name: 'Minh Anh',
   avatar: '',

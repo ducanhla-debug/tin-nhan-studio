@@ -66,7 +66,9 @@ tin-nhan-studio/
 │  ├─ components.jsx              # Header, bảng thiết lập, bảng chỉnh sửa
 │  ├─ defaults.js                 # Dữ liệu mẫu, nhãn, preset, factory tin nhắn
 │  ├─ main.jsx                    # React entry point
-│  ├─ renderer.js                 # Bộ dựng Canvas 1080 × 1920
+│  ├─ renderer.js                 # Tọa độ 393pt -> Canvas 1080 × 1920
+│  ├─ icons.js                    # Icon outline tự vẽ, không phải SF Symbols
+│  ├─ typography.js               # Font Apple native / Inter 4.1 thay thế
 │  └─ styles.css                  # Design system và responsive
 ├─ tests/
 │  ├─ defaults.test.js            # Kiểm tra dữ liệu/preset
@@ -220,12 +222,14 @@ Vite đang dùng `base: './'`, phù hợp với project page `/tin-nhan-studio/`
 4. Data URL của nhiều ảnh lớn có thể vượt giới hạn `localStorage` của trình duyệt.
 5. Tin nhắn dài được tự động bỏ bớt các tin đầu để vừa ảnh; chưa có thanh chọn chính xác đoạn hội thoại cần chụp.
 6. Chưa hỗ trợ video, audio, voice note, link preview, reply quote, sticker thật, trạng thái đã xem/đã gửi chi tiết hoặc nhóm chat.
-7. Bàn phím là bản mô phỏng tĩnh, chưa có nhiều layout tiếng Việt/số/emoji.
+7. Bàn phím là bản mô phỏng tĩnh QWERTY, có shift/backspace/123/emoji/globe/mic nhưng chưa có nhiều layout tiếng Việt/số/emoji.
 8. Tên thương hiệu và hình thức UI chỉ mang tính mô phỏng; không sử dụng asset/logo chính thức của nền tảng.
-9. Chưa có E2E tests được commit vào repository; lần bàn giao trước dùng Playwright bên ngoài repo để kiểm thử trình duyệt và file tải xuống.
+9. Chưa có E2E tests được commit vào repository; các lần kiểm thử dùng Playwright bên ngoài repo để kiểm thử trình duyệt và file tải xuống.
 10. Dependencies đang khai báo `latest`; nên pin phiên bản trước khi phát triển dài hạn.
 
 ## 10. Thứ tự cải tiến đề xuất
+
+Đợt sửa UX/typography tiếp theo cùng ngày: render buffer chỉ commit state mới nhất, chờ font trước khi đo dòng, ngắt chuỗi dài theo grapheme, thao tác chạm/nhấn giữ trên canvas, captureEndId và deliveryState. Chi tiết nguồn/giới hạn trong docs/platform-references.md. Người dùng yêu cầu khớp UI/UX/font bản 2026; tiêu chí fidelity này CHƯA đạt xác nhận trên iPhone thực tế, không được đánh đồng QA chức năng với khớp pixel.
 
 ### P0 — Độ chân thực
 

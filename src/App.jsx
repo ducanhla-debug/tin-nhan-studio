@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { CheckCircle2, MonitorSmartphone } from 'lucide-react'
 import { AppHeader, SetupPanel, StatusPanel } from './components.jsx'
 import { createMessage, initialState } from './defaults.js'
-import { canvasToBlob, renderToCanvas } from './renderer.js'
+import { canvasToBlob, renderToCanvas, commitRenderedCanvas, logicalSize, messageAtPoint } from './renderer.js'
 
 const STORAGE_KEY = 'tin-nhan-studio-v1'
 
@@ -24,18 +24,44 @@ function readFile(file) {
   })
 }
 
-function Preview({ state, canvasRef, rendering }) {
+function Preview({ state, setState, canvasRef, rendering, saved }) {
+  const gesture = useRef(null)
+  useEffect(() => () => window.clearTimeout(gesture.current?.timer), [])
+  const begin = (event) => {
+    if (rendering) return
+    const canvas = canvasRef.current
+    const bounds = canvas.getBoundingClientRect()
+    const id = messageAtPoint(canvas, (event.clientX-bounds.left)/bounds.width*logicalSize.width, (event.clientY-bounds.top)/bounds.height*logicalSize.height)
+    const current = { id, x: event.clientX, y: event.clientY, held: false }
+    if (id && state.mode==='full') current.timer = window.setTimeout(() => {
+      current.held = true
+      setState(s=>({...s,selectedId:id,mode:'focus'}))
+    },450)
+    gesture.current = current
+  }
+  const cancel = () => { window.clearTimeout(gesture.current?.timer); gesture.current = null }
+  const end = () => {
+    const current = gesture.current
+    if(!current) return
+    window.clearTimeout(current.timer)
+    if(!current.held) {
+      if(current.id) setState(s=>({...s,selectedId:current.id}))
+      else if(state.mode!=='full') setState(s=>({...s,mode:'full'}))
+    }
+    gesture.current=null
+  }
   return (
     <main className="preview-stage">
       <div className="preview-toolbar">
         <span><MonitorSmartphone size={17} /> Xem trước trực tiếp</span>
-        <span className="autosave"><CheckCircle2 size={15} /> Đã lưu trên trình duyệt</span>
+        <span className="autosave"><CheckCircle2 size={15} /> {saved ? 'Đã lưu trên trình duyệt' : 'Chưa lưu được'}</span>
       </div>
       <div className="phone-shell">
         <div className="phone-buttons left one" /><div className="phone-buttons left two" /><div className="phone-buttons right" />
-        <canvas ref={canvasRef} aria-label="Bản xem trước ảnh tin nhắn" />
+        <canvas ref={canvasRef} aria-label="Bản xem trước ảnh tin nhắn" onPointerDown={begin} onPointerUp={end} onPointerCancel={cancel} onPointerLeave={cancel} onPointerMove={(e)=>{const current=gesture.current;if(current&&Math.hypot(e.clientX-current.x,e.clientY-current.y)>8)cancel()}} onContextMenu={(e)=>{e.preventDefault();const current=gesture.current;if(current?.id){window.clearTimeout(current.timer);setState(s=>({...s,selectedId:current.id,mode:'focus'}));gesture.current=null}}} />
         {rendering ? <div className="rendering">Đang cập nhật…</div> : null}
       </div>
+      <p className="preview-hint">Chạm để chọn tin · Nhấn giữ để làm nổi bật</p>
     </main>
   )
 }
@@ -45,16 +71,21 @@ export default function App() {
   const [rendering, setRendering] = useState(true)
   const [exporting, setExporting] = useState(false)
   const [toast, setToast] = useState('')
+  const [saved, setSaved] = useState(true)
   const canvasRef = useRef(null)
   const renderToken = useRef(0)
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); setSaved(true) } catch { setSaved(false) }
     const token = ++renderToken.current
     setRendering(true)
     const timer = window.setTimeout(async () => {
-      if (canvasRef.current) await renderToCanvas(canvasRef.current, state)
-      if (token === renderToken.current) setRendering(false)
+      try {
+        const buffer = document.createElement('canvas')
+        await renderToCanvas(buffer, state)
+        if (token === renderToken.current && canvasRef.current) commitRenderedCanvas(buffer,canvasRef.current)
+      } catch (error) { if(token===renderToken.current)setToast(error.message || 'Không thể cập nhật bản xem trước') }
+      finally { if (token === renderToken.current) setRendering(false) }
     }, 70)
     return () => window.clearTimeout(timer)
   }, [state])
@@ -63,14 +94,14 @@ export default function App() {
 
   const addMessage = () => {
     const message = createMessage(state.messages.at(-1)?.sender === 'me' ? 'them' : 'me')
-    setState((s) => ({ ...s, messages: [...s.messages, message], selectedId: message.id }))
+    setState((s) => ({ ...s, messages: [...s.messages, message], selectedId: message.id, captureEndId: '' }))
   }
 
   const deleteMessage = () => {
     setState((s) => {
       const next = s.messages.filter((message) => message.id !== s.selectedId)
       const nextSelected = next[Math.min(selectedIndex, next.length - 1)]?.id || ''
-      return { ...s, messages: next, selectedId: nextSelected }
+      return { ...s, messages: next, selectedId: nextSelected, captureEndId: s.captureEndId === s.selectedId ? '' : s.captureEndId }
     })
   }
 
@@ -137,10 +168,10 @@ export default function App() {
 
   return (
     <div className="app-shell">
-      <AppHeader onReset={() => { localStorage.removeItem(STORAGE_KEY); setState(initialState) }} onDownload={download} exporting={exporting} />
+      <AppHeader onReset={() => { try { localStorage.removeItem(STORAGE_KEY) } catch {} setState(initialState) }} onDownload={download} exporting={exporting} format={state.format} />
       <div className="workspace">
         <SetupPanel state={state} setState={setState} onAvatar={(event) => updateFile(event, 'avatar')} onAddMessage={addMessage} />
-        <Preview state={state} canvasRef={canvasRef} rendering={rendering} />
+        <Preview state={state} setState={setState} canvasRef={canvasRef} rendering={rendering} saved={saved} />
         <StatusPanel
           state={state}
           setState={setState}
