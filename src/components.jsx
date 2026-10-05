@@ -79,7 +79,7 @@ export function AppHeader({ onReset, onDownload, exporting, format = 'png' }) {
         <span className="brand-mark"><MessageCircle size={23} fill="currentColor" /></span>
         <strong>Tin Nhắn Studio</strong>
       </div>
-      <div className="device-label"><Smartphone size={17} /> iPhone 14 Pro · 1080 × 1920</div>
+      <div className="device-label"><Smartphone size={17} /> iPhone 14 Pro · 736 × 1600</div>
       <div className="header-actions">
         <button className="button ghost" type="button" onClick={onReset}><RotateCcw size={17} /> Đặt lại</button>
         <button className="button primary" type="button" onClick={onDownload} disabled={exporting}>
@@ -207,7 +207,7 @@ export function StatusPanel({ state, setState, onMessageImage, onDelete, onMove,
       </PanelSection>
 
       <PanelSection title="Xuất ảnh" className="export-section">
-        <div className="export-meta"><span><BatteryMedium size={17} /> 1080 × 1920</span><span>Không watermark</span></div>
+        <div className="export-meta"><span><BatteryMedium size={17} /> 736 × 1600</span><span>Không watermark</span></div>
         <label className="toggle-row"><input type="checkbox" checked={state.keyboard} onChange={(e) => setState((s) => ({ ...s, keyboard: e.target.checked }))} /><span>Hiện bàn phím iPhone</span></label>
         <div className="format-row">
           <select value={state.format} onChange={(e) => setState((s) => ({ ...s, format: e.target.value }))}><option value="png">PNG chất lượng cao</option><option value="jpg">JPG nhẹ hơn</option></select>

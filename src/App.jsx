@@ -141,7 +141,7 @@ export default function App() {
       anchor.download = `tin-nhan-${state.platform}-${Date.now()}.${state.format}`
       anchor.click()
       URL.revokeObjectURL(url)
-      setToast('Đã tạo ảnh 1080 × 1920')
+      setToast('Đã tạo ảnh 736 × 1600')
     } catch (error) {
       setToast(error.message || 'Không thể tạo ảnh')
     } finally {

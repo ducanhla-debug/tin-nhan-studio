@@ -1,5 +1,7 @@
 # Giao diện nền tảng — cập nhật 05/10/2026
 
+Quyết định kích thước mới: đọc trực tiếp cả hai file screenshot gốc, xác nhận 736 × 1600 px. Đầu ra và bản xem trước chuyển sang tỷ lệ 736/1600 thay cho 9:16. Các ghi chú 9:16 bên dưới là lịch sử, không còn là yêu cầu hiện hành. Chữ/icon vẫn giữ tỷ lệ theo chiều rộng 393pt; chỉ tăng vùng hội thoại.
+
 ## Đối chiếu hai screenshot mới do người dùng cung cấp
 
 Thanh trạng thái được chỉnh riêng theo ảnh: sóng gồm bốn cột đặc cùng đáy; Wi-Fi ba dải đặc thuôn; pin thân bo liền, đầu pin riêng, phần trăm 11.5pt và vùng pin còn lại. Cụm phải đặt tại x280–361 trên khung 393pt. Có kiểm thử clamp/round giá trị pin và sóng, quick pick pin thấp, mạng yếu và đủ pin. Đây vẫn là hình vẽ tái hiện từ ảnh, chưa chứng nhận trùng pixel với hệ thống iOS 26 thực tế.

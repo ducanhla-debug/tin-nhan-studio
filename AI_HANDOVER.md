@@ -12,7 +12,7 @@
 - **Stack:** React 19, Vite 8, JavaScript, CSS thuần, Canvas 2D, Lucide React.
 - **Backend:** Không có. Toàn bộ dữ liệu và quá trình dựng ảnh chạy trong trình duyệt.
 - **Lưu dữ liệu:** `localStorage`, khóa `tin-nhan-studio-v1`.
-- **Kích thước ảnh xuất:** 1080 × 1920 px, tỷ lệ 9:16.
+- **Kích thước ảnh xuất hiện hành:** 736 × 1600 px, tỷ lệ 0.46, khớp hai screenshot Messenger/Zalo người dùng cung cấp. Quyết định mới này thay thế tất cả kích thước 1080 × 1920 và 9:16 còn được nhắc trong phần lịch sử bên dưới. Canvas, CSS preview, nhãn UI và kiểm thử tải PNG/JPG phải dùng 736 × 1600; phóng đồng đều theo chiều rộng, không kéo dãn ảnh cũ.
 
 ## 2. Yêu cầu sản phẩm đã được chốt
 

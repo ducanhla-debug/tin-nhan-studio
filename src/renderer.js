@@ -1,8 +1,8 @@
 import { font, prepareTypography } from './typography.js'
 import { icon } from './icons.js'
 
-export const canvasSize = { width: 1080, height: 1920 }
-export const logicalSize = { width: 393, height: 393 * 16 / 9 }
+export const canvasSize = { width: 736, height: 1600 }
+export const logicalSize = { width: 393, height: 393 * canvasSize.height / canvasSize.width }
 const W = logicalSize.width
 const H = logicalSize.height
 const SCALE = canvasSize.width / W

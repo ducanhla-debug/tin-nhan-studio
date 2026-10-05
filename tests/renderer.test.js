@@ -3,9 +3,10 @@ import assert from 'node:assert/strict'
 import { canvasSize, wrapLines, layoutMessages, logicalSize, statusValues } from '../src/renderer.js'
 import { initialState } from '../src/defaults.js'
 
-test('kích thước ảnh xuất đúng tỷ lệ 9:16', () => {
-  assert.deepEqual(canvasSize, { width: 1080, height: 1920 })
-  assert.equal(canvasSize.width / canvasSize.height, 9 / 16)
+test('kích thước ảnh xuất khớp hai screenshot 736 × 1600', () => {
+  assert.deepEqual(canvasSize, { width: 736, height: 1600 })
+  assert.equal(canvasSize.width / canvasSize.height, 736 / 1600)
+  assert.equal(logicalSize.height / logicalSize.width, canvasSize.height / canvasSize.width)
 })
 
 test('pin và sóng được làm tròn, giới hạn và xử lý giá trị không hợp lệ', () => {
