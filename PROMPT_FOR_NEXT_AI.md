@@ -15,3 +15,5 @@ Máy mới: Git, Node.js 22.12+, pnpm 10; pnpm install --frozen-lockfile, pnpm t
 Thực hiện trong phạm vi, giữ thay đổi không liên quan; sửa tài liệu/tests cùng tính năng. Không reset dữ liệu trình duyệt, xuất bản ảnh riêng hoặc credentials; không tuyên bố pixel-perfect chưa xác minh. Báo cáo kết quả và rủi ro.
 
 Triển khai chỉ khi tôi yêu cầu: push main cần quyền GitHub trên máy mới; chờ Actions success rồi kiểm tra production. Thiếu quyền thì giữ local và hướng dẫn cấp quyền.
+
+Đã tích hợp bản chat06/10 từ831b50e: giữ chat15.5pt, typography profiles, download fallback link, native Apple/Inter public. Đọc docs/typography-sources.md và docs/RELEASE-2026-10-06.md. .local-fonts là tài sản riêng gitignored, không cần và không được công khai khi tiếp quản.

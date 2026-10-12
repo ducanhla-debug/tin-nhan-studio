@@ -44,7 +44,7 @@ URL local mặc định http://127.0.0.1:5173/. Giữ lockfile; dependencies đ�
 | src/typography.js | Apple native / Inter fallback; chờ font trước đo chữ |
 | src/styles.css | Desktop ba vùng, mobile preview trước, CSS không kéo méo canvas |
 | public/fonts/ | Inter 4.1 + OFL; không font Apple |
-| tests/ | Unit tests Node, hiện 16 bài |
+| tests/ | Unit tests Node, số lượng hiện hành xem pnpm test |
 | scripts/qa-browser.mjs | QA trình duyệt portable |
 | .github/workflows/deploy.yml | Install → unit tests → build → Pages |
 
@@ -113,4 +113,10 @@ Backup thủ công: DevTools → Application/Storage → Local Storage → đún
 - Chưa có voice note/sticker/link preview/cuộc gọi/nhóm chat. CaptureEnd, delivery cơ bản và Messenger quote đã có.
 - P2: JSON import/export, IndexedDB/nén ảnh/schema migration, visual regression/CI E2E, Clipboard JPEG tùy trình duyệt. Dependencies đã pin, E2E portable đã vào repo.
 
-Checkpoint chức năng chat trước đây: 12 unit tests + build, 18 trạng thái/6 file export. Đợt bổ sung chuyển khoản: 16 unit tests; E2E 18 trạng thái chat và 14 file PNG/JPG (6 chat + 8 chuyển khoản) đúng736 ×1600; kiểm tra pixel nền nhãn trong file tải, drag/key/edge/reload và mobile390 ×844. Chạy lại trên localhost và production sau deploy; không coi checkpoint là bảo đảm cho thay đổi sau này hoặc khớp pixel-native.
+Checkpoint chức năng chat trước đây: 12 unit tests + build, 18 trạng thái/6 file export. Đợt bổ sung chuyển khoản trước merge: 16 unit tests; sau ghép bản831b50e: 23 unit tests. E2E 18 trạng thái chat và 14 file PNG/JPG (6 chat + 8 chuyển khoản) đúng736 ×1600; kiểm tra pixel nền nhãn trong file tải, drag/key/edge/reload và mobile390 ×844. Đã chạy lại trên localhost sau merge. Chạy production sau deploy; không coi checkpoint là bảo đảm cho thay đổi sau này hoặc khớp pixel-native.
+
+## 9. Đã ghép bản chat từ GitHub ngày 06/10/2026
+
+Giữ nguyên cải tiến từ commit831b50e: chat15.5pt (Messenger/Zalo line19pt, Messages22pt), bàn phím309pt, profile typography riêng, Messages service/encryption/inboxCount, preview/focus cải tiến. Download có anchor gắn body và link tải lại file đã tạo, quản lý object URL khi đổi file.
+
+Đọc docs/RELEASE-2026-10-06.md, docs/QA-2026-10-05.md và docs/typography-sources.md để biết lịch sử. SF Pro Text/Display cục bộ chỉ dev từ .local-fonts gitignored; không có trên repo/máy mới, không đưa vào production. Người dùng đã đồng ý font Inter public trên Windows/Android ngày06/10. Không sao chép font riêng để máy mới chạy; fallback là hành vi hợp lệ. Chạy lại QA sau merge, không lấy kết quả trước merge làm chứng minh hiện tại.

@@ -83,10 +83,13 @@ export default function App() {
   const [state, setState] = useState(loadState)
   const [rendering, setRendering] = useState(true)
   const [exporting, setExporting] = useState(false)
+  const [exportFile, setExportFile] = useState(null)
   const [toast, setToast] = useState('')
   const [saved, setSaved] = useState(true)
   const canvasRef = useRef(null)
   const renderToken = useRef(0)
+
+  useEffect(() => () => { if (exportFile) URL.revokeObjectURL(exportFile.url) }, [exportFile])
 
   useEffect(() => {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); setSaved(true) } catch { setSaved(false) }
@@ -149,11 +152,15 @@ export default function App() {
     try {
       const blob = await makeBlob()
       const url = URL.createObjectURL(blob)
+      const filename = state.documentType==='bank'?`mau-mo-phong-${state.bank.style}-${Date.now()}.${state.format}`:`tin-nhan-${state.platform}-${Date.now()}.${state.format}`
+      setExportFile({url, filename})
       const anchor = document.createElement('a')
       anchor.href = url
-      anchor.download = state.documentType==='bank'?`mau-mo-phong-${state.bank.style}-${Date.now()}.${state.format}`:`tin-nhan-${state.platform}-${Date.now()}.${state.format}`
+      anchor.download = filename
+      document.body.appendChild(anchor)
       anchor.click()
-      URL.revokeObjectURL(url)
+      anchor.remove()
+      // Keep a direct link available if the browser blocks the automatic download.
       setToast('Đã tạo ảnh 736 × 1600')
     } catch (error) {
       setToast(error.message || 'Không thể tạo ảnh')
@@ -183,6 +190,7 @@ export default function App() {
     <div className="app-shell">
       <AppHeader onReset={() => { try { localStorage.removeItem(STORAGE_KEY) } catch {} setState(initialState) }} onDownload={download} exporting={exporting} format={state.format} />
       <nav className="document-switch" aria-label="Loại ảnh"><Segmented value={state.documentType || 'chat'} items={[{value:'chat',label:'Tin nhắn'},{value:'bank',label:'Mẫu chuyển khoản'}]} onChange={documentType=>setState(s=>({...s,documentType}))}/></nav>
+      {exportFile ? <p className="export-file"><a href={exportFile.url} download={exportFile.filename}>Tải file đã tạo: {exportFile.filename}</a></p> : null}
       <div className="workspace">
         {state.documentType==='bank'?<BankSetup state={state} setState={setState}/>:<SetupPanel state={state} setState={setState} onAvatar={(event) => updateFile(event, 'avatar')} onAddMessage={addMessage} />}
         <Preview state={state} setState={setState} canvasRef={canvasRef} rendering={rendering} saved={saved} />

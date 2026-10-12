@@ -28,7 +28,7 @@ Chuẩn hiện hành: hai screenshot do người dùng gửi, đọc file gốc 
 - Theo yêu cầu: iPhone 14 Pro có Dynamic Island/home indicator dù hai screenshot không hiện island. Đây là khác biệt có chủ ý; không xóa khi không được yêu cầu.
 - Status cụm phải (khung393pt): sóng x280pt, 4 cột đặc cùng đáy; Wi-Fi x306pt, 3 tầng thuôn đặc; pin x332pt thân27 × 13.5pt, bo4pt, đầu riêng, %11.5pt. Theo ảnh, không dùng outline Wi-Fi quá mảnh.
 - Time17pt semibold. Pin thấp đỏ, foreground trắng ở Zalo/dark, đen ở Messenger/Messages sáng; giá trị clamp/round.
-- Canvas logical393 ×854.35pt → file736 ×1600, scale hai trục736/393. Chat hiện17pt/line22pt; giữ scale uniform; CSS preview height:auto.
+- Canvas logical393 ×854.35pt → file736 ×1600, scale hai trục736/393. Chat hiện15.5pt, line19pt Messenger/Zalo và22pt Messages; giữ scale uniform; CSS preview height:auto.
 - Apple native font/emoji khi mở trên Apple. Inter4.1/OFL đóng gói thay trên Windows/Android, emoji theo OS. Không phân phối font Apple.
 
 ## Messages / focus / preview
@@ -46,3 +46,9 @@ Hold450ms focus, tap nền dismiss; keyboard QWERTY tĩnh. Cần kiểm tra quot
 - Inter: https://rsms.me/inter/
 
 Nguồn này bổ sung, không thay hai ảnh của người dùng. Listing/version hoặc marketing preview không chứng minh mọi bản giao diện năm2026. Chưa kiểm thử Safari iPhone14Pro thực; icon tự vẽ không chính thức, Liquid Glass/dark/menu/emoji có sai khác. Functional QA không đồng nghĩa pixel-perfect. Khi cần chỉnh fidelity vượt spec, xin screenshot mới có thể chia sẻ hoặc kiểm tra trực tiếp trên iPhone, không đoán.
+
+## Bộ tham chiếu bổ sung và bản chat đã ghép từ831b50e
+
+Bộ sau gồm5 ảnh Zalo hội thoại/bàn phím và Messenger hội thoại/focus/preview;4 ảnh SMS/iMessage toàn bộ/preview. Các file bổ sung589 ×1280, không thay đầu ra736 ×1600 đã chốt. Header thấp/composer riêng, keyboard309pt; Messenger focus camera/Dịch, preview6action; Messages avatar50pt/contact pill/service/encryption/tail/Tapback, ngắn bắt đầu trên/dài giữ tin cuối. Không sao chép Live Activity/cuộc gọi khi state không có.
+
+Đã giữ profile15.5pt, line19pt/22pt từ bản mới. Những số đo/màu phần trên là ghi chép bộ ảnh gốc, không lệnh hoàn nguyên bản chat mới. Chưa có mẫu trực tiếp Zalo focus/preview hoặc Messages focus trong bộ bổ sung. Xem docs/QA-2026-10-05.md, docs/RELEASE-2026-10-06.md và docs/typography-sources.md. Apple local fonts chỉ phục vụ dev, không commit/phân phối, public fallback được người dùng đồng ý06/10.

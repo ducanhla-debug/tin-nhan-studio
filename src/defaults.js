@@ -24,6 +24,7 @@ export const initialState = {
   bank: {...initialBank},
   platform: 'messenger',
   messageService: 'imessage',
+  inboxCount: 1037,
   captureEndId: '',
   deliveryState: 'none',
   mode: 'full',

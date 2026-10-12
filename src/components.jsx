@@ -21,7 +21,7 @@ import {
   Wifi,
 } from 'lucide-react'
 import { modeLabels, platformLabels, statusPresets } from './defaults.js'
-import { hasAppleTypography } from './typography.js'
+import { typographyNote } from './typography.js'
 
 export function IconButton({ label, children, className = '', ...props }) {
   return (
@@ -102,9 +102,10 @@ export function SetupPanel({ state, setState, onAvatar, onAddMessage }) {
       <PanelSection title="Nền tảng">
         <Segmented value={state.platform} items={platformItems} onChange={(platform) => setState((s) => ({ ...s, platform }))} ariaLabel="Nền tảng tin nhắn" />
         {state.platform === 'imessage' ? <Field label="Loại tin nhắn iPhone"><select aria-label="Loại tin nhắn iPhone" value={state.messageService || 'imessage'} onChange={(e) => setState((s) => ({ ...s, messageService: e.target.value }))}><option value="imessage">iMessage · Xanh dương</option><option value="sms">SMS · Xanh lá</option></select></Field> : null}
+        {state.platform === 'imessage' ? <Field label="Số trên nút quay lại"><input type="number" min="0" max="9999" value={state.inboxCount ?? 1037} onChange={e => setState(s => ({...s,inboxCount:Math.max(0,Math.min(9999,Number(e.target.value)||0))}))} /></Field> : null}
         <div className="subheading">Chế độ chụp</div>
         <Segmented value={state.mode} items={modeItems} onChange={(mode) => setState((s) => ({ ...s, mode }))} ariaLabel="Chế độ chụp" />
-        <p className="font-note">iOS 26 · {hasAppleTypography ? 'Font hệ thống Apple' : 'Font Inter thay thế trên máy này. Mở bằng iPhone để dùng font và emoji Apple.'}</p>
+        <p className="font-note">iOS 26 · {typographyNote(state.platform)}</p>
       </PanelSection>
 
       <PanelSection title="Cuộc trò chuyện">
