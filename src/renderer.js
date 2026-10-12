@@ -1,5 +1,6 @@
 import { font, prepareTypography } from './typography.js'
 import { icon } from './icons.js'
+import {renderBank} from './bankRenderer.js'
 
 export const canvasSize = { width: 736, height: 1600 }
 export const logicalSize = { width: 393, height: 393 * canvasSize.height / canvasSize.width }
@@ -325,9 +326,11 @@ async function preview(ctx,state) {
 }
 export async function renderToCanvas(canvas,state) {
   await prepareTypography()
-  await Promise.all([imageFor(state.avatar),...state.messages.filter(m=>m.image).map(m=>imageFor(m.image))])
+  if(state.documentType!=='bank')await Promise.all([imageFor(state.avatar),...state.messages.filter(m=>m.image).map(m=>imageFor(m.image))])
   const drawing=surface()
-  const layouts=state.mode==='focus'?await focus(drawing.ctx,state):state.mode==='preview'?await preview(drawing.ctx,state):await full(drawing.ctx,state)
+  let layouts=[]
+  if(state.documentType==='bank')renderBank(drawing.ctx,state,W,H,status)
+  else layouts=state.mode==='focus'?await focus(drawing.ctx,state):state.mode==='preview'?await preview(drawing.ctx,state):await full(drawing.ctx,state)
   canvas.width=canvasSize.width;canvas.height=canvasSize.height
   canvas.getContext('2d').drawImage(drawing.canvas,0,0)
   hitRegions.set(canvas,layouts)

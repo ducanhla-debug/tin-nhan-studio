@@ -1,34 +1,48 @@
-# Giao diện nền tảng — cập nhật 05/10/2026
+# Spec tham chiếu Messenger/Zalo/iOS — 05/10/2026
 
-Quyết định kích thước mới: đọc trực tiếp cả hai file screenshot gốc, xác nhận 736 × 1600 px. Đầu ra và bản xem trước chuyển sang tỷ lệ 736/1600 thay cho 9:16. Các ghi chú 9:16 bên dưới là lịch sử, không còn là yêu cầu hiện hành. Chữ/icon vẫn giữ tỷ lệ theo chiều rộng 393pt; chỉ tăng vùng hội thoại.
+Chuẩn hiện hành: hai screenshot do người dùng gửi, đọc file gốc xác nhận đều **736 × 1600 px** (tỷ lệ 0.46). Không dùng 9:16. Đây không phải kích thước screenshot native mặc định của mọi iPhone; là kích thước file tham chiếu người dùng muốn.
 
-## Đối chiếu hai screenshot mới do người dùng cung cấp
+Ảnh gốc chứa hội thoại/tên/avatar riêng tư, không nằm trong repo công khai. Spec dưới đây lưu đặc điểm nhìn thấy; không chứa nội dung riêng. docs/examples chỉ là kết quả tool với dữ liệu giả, không thay cho nguồn native.
 
-Thanh trạng thái được chỉnh riêng theo ảnh: sóng gồm bốn cột đặc cùng đáy; Wi-Fi ba dải đặc thuôn; pin thân bo liền, đầu pin riêng, phần trăm 11.5pt và vùng pin còn lại. Cụm phải đặt tại x280–361 trên khung 393pt. Có kiểm thử clamp/round giá trị pin và sóng, quick pick pin thấp, mạng yếu và đủ pin. Đây vẫn là hình vẽ tái hiện từ ảnh, chưa chứng nhận trùng pixel với hệ thống iOS 26 thực tế.
+## Messenger — ảnh tham chiếu 1
 
-Hai ảnh mới là chuẩn trực tiếp cho màn hình hội thoại Messenger/Zalo, không phải ảnh quảng bá. Không đưa tên, nội dung riêng tư hoặc screenshot gốc vào repository công khai.
+- Header trắng bên trái → xanh da trời nhạt bên phải, avatar tròn trước tên đậm; back nét xanh, phone/video xanh đặc. Không subtitle online/dot trong ảnh.
+- Nền chat trắng; nhận xám rất nhạt khoảng #f2f2f6; gửi đổi xanh theo vị trí dọc (trên sáng khoảng #326af5, dưới đậm khoảng #0b0fc3), không lặp gradient riêng mỗi bubble.
+- Avatar nhận chỉ ở tin cuối nhóm, căn đáy; incoming lề trái ~50pt trên chiều rộng quy đổi 393pt. Avatar ~23–24pt tại x14pt.
+- Bubble ngoài bo lớn ~17–18pt, cạnh nối cùng người bo nhỏ ~2pt, gap trong nhóm ~2pt, giữa nhóm ~10pt. Tin gửi lề phải ~7pt.
+- Có nhãn Bạn đã trả lời [tên], khối quote xám và bubble phản hồi phía dưới; seen mini avatar dưới tin gửi.
+- Composer: cộng trắng trong hình tròn xanh đậm, camera/image/mic đặc, input Aa ngắn màu xám, smile đặc và thumbs. Vị trí xấp xỉ x13/51/91/132pt; input x168pt. Màu control xanh tím đậm #1518bf.
+- Không suy luận tất cả menu/dark/rollout từ ảnh sáng này.
 
-- Messenger: header xanh nhạt chuyển sắc; bong bóng gửi đổi xanh theo vị trí dọc; góc nối nhóm nhỏ; avatar cuối nhóm; thanh soạn có nút cộng tròn, camera/micro đặc, input ngắn. Mặc định ẩn trạng thái hoạt động. Có trích dẫn trả lời tùy chọn.
-- Zalo: nền xám xanh, tin gửi cyan nhạt có viền; góc bo đều kể cả cùng nhóm; avatar đầu nhóm; giờ nằm trái trong tin cuối nhóm; mốc ngày dạng pill xám và cảm xúc có số đếm/nút tròn.
-- Khác biệt có chủ ý: vẫn giữ Dynamic Island và home indicator theo yêu cầu iPhone 14 Pro; đầu ra 9:16 ngắn hơn tỷ lệ vật lý thiết bị. Windows dùng Inter, chưa xác minh pixel-perfect trên Safari iPhone. Icon tự vẽ vẫn là xấp xỉ, menu nhấn giữ không có screenshot mới để xác minh.
+## Zalo — ảnh tham chiếu 2
 
-Nguồn đối chiếu:
-- Messenger: https://apps.apple.com/us/app/messenger/id454638411 — ảnh preview iPhone của Meta.
-- Zalo: https://apps.apple.com/vn/app/zalo/id579523206 — ảnh preview iPhone của Zalo Group, phiên bản được liệt kê 26.10.01.
-- Messages: https://support.apple.com/en-gb/guide/iphone/iph82fb73ba3/26/ios/26 — hướng dẫn iOS 26; nút thêm ở dưới trái, màu xanh dương iMessage / xanh lá SMS.
-- Ảnh Zalo và menu nhấn giữ người dùng cung cấp trong cuộc hội thoại là tham chiếu bổ sung.
+- Header/status xanh chuyển sắc ~#0087ff → #00b4ed; tên trắng, không avatar trong header; back/phone/video/menu trắng nét outline.
+- Nền ~#e2e9f1; nhận trắng có viền, gửi cyan nhạt ~#cff0fb có viền xanh xám.
+- Tất cả bubble bo đều ~9pt, không giảm góc theo nhóm. Incoming x38pt; avatar ở **đầu nhóm, căn trên**, x10pt size~22pt. Gửi lề phải~12pt.
+- Giờ xám khoảng10pt nằm **trái trong tin cuối nhóm**, không phải mỗi tin/căn phải. Date separator trắng trên pill xám centered, ví dụ giờ + ngày/tháng/năm.
+- Cảm xúc dưới phải: pill trắng emoji + số đếm, kèm nút tròn cảm xúc riêng.
+- Composer nền trắng phẳng: smile outline, placeholder Tin nhắn, ellipsis/mic/image xám; không input pill nổi.
 
-Đã sửa header, composer, palette và icon riêng từng nền tảng; tin liên tiếp cùng người gom khoảng cách và avatar cuối nhóm; Messages có đuôi bong bóng, Tapback ở góc trên, chọn iMessage/SMS. Menu focus/preview có nhãn theo nền tảng và màu sáng/tối.
+## Status/thiết bị/font
 
-## Đợt sửa typography/UX 05/10/2026
+- Theo yêu cầu: iPhone 14 Pro có Dynamic Island/home indicator dù hai screenshot không hiện island. Đây là khác biệt có chủ ý; không xóa khi không được yêu cầu.
+- Status cụm phải (khung393pt): sóng x280pt, 4 cột đặc cùng đáy; Wi-Fi x306pt, 3 tầng thuôn đặc; pin x332pt thân27 × 13.5pt, bo4pt, đầu riêng, %11.5pt. Theo ảnh, không dùng outline Wi-Fi quá mảnh.
+- Time17pt semibold. Pin thấp đỏ, foreground trắng ở Zalo/dark, đen ở Messenger/Messages sáng; giá trị clamp/round.
+- Canvas logical393 ×854.35pt → file736 ×1600, scale hai trục736/393. Chat hiện17pt/line22pt; giữ scale uniform; CSS preview height:auto.
+- Apple native font/emoji khi mở trên Apple. Inter4.1/OFL đóng gói thay trên Windows/Android, emoji theo OS. Không phân phối font Apple.
 
-Người dùng đã chốt iOS 26. Nguồn App Store Messenger được kiểm tra trực tiếp liệt kê phiên bản 581.0.0, nhưng ảnh quảng bá không đủ chứng minh mọi màn hình của phiên bản đó. Không dùng phiên bản trong listing để gắn nhãn ảnh quảng bá là screenshot 2026 đã được xác minh.
+## Messages / focus / preview
 
-- Renderer chuyển sang tọa độ rộng 393pt, chữ chat 17pt/line-height 22pt; xuất ảnh phóng đồng đều, preview card cũng phóng đồng đều.
-- Typography chờ font tải xong trước khi đo/cắt dòng. Apple dùng font hệ thống native; Windows/Android dùng Inter 4.1 có giấy phép SIL OFL, lưu trong public/fonts. Emoji dùng hệ điều hành. Không phân phối font/emoji Apple.
-- Nguồn font: https://developer.apple.com/fonts/ và https://rsms.me/inter/.
-- Chạm bong bóng chọn tin, nhấn giữ 450ms mở focus; chạm nền mờ đóng focus. Chọn tin cuối đoạn chụp, trạng thái đã gửi/đã xem. Render vào buffer, chỉ commit phiên cập nhật mới nhất để tránh hiển thị dữ liệu cũ khi sửa nhanh.
+Messages là mô phỏng iOS26: contact control, composer plus/mic, iMessage xanh dương hoặc SMS xanh lá, incoming xám có tail cuối nhóm. Menu hold, reaction và thẻ preview dựa trên ảnh ban đầu và nguồn chính thức; chưa có ảnh mới cùng thiết bị đủ chứng minh khớp từng pixel.
 
-Mismatches còn cần bằng chứng: font/emoji Apple trên iPhone thực tế; icon ứng dụng (path tự vẽ, không SF Symbols); hình dạng/opacity/blur Liquid Glass theo từng app/rollout; menu focus/preview; trạng thái giao/đọc theo app. Các điểm này chưa được xác minh từng pixel bằng screenshot cùng thiết bị/phiên bản/cỡ chữ.
+Hold450ms focus, tap nền dismiss; keyboard QWERTY tĩnh. Cần kiểm tra quote dài/menu quá đáy khi đổi layout.
 
-Giới hạn: chưa kiểm thử trực tiếp Safari iPhone 14 Pro. Ảnh 9:16 có vùng hội thoại ngắn hơn màn hình vật lý iPhone 14 Pro, giữ nguyên tỷ lệ font/icon theo chiều rộng; không thể vừa giữ tỷ lệ toàn màn hình vật lý vừa có ảnh 9:16 không crop/pad.
+## Nguồn bổ sung và giới hạn
+
+- Messenger: https://apps.apple.com/us/app/messenger/id454638411
+- Zalo: https://apps.apple.com/vn/app/zalo/id579523206
+- Apple Messages iOS26: https://support.apple.com/en-gb/guide/iphone/iph82fb73ba3/26/ios/26
+- Apple fonts: https://developer.apple.com/fonts/
+- Inter: https://rsms.me/inter/
+
+Nguồn này bổ sung, không thay hai ảnh của người dùng. Listing/version hoặc marketing preview không chứng minh mọi bản giao diện năm2026. Chưa kiểm thử Safari iPhone14Pro thực; icon tự vẽ không chính thức, Liquid Glass/dark/menu/emoji có sai khác. Functional QA không đồng nghĩa pixel-perfect. Khi cần chỉnh fidelity vượt spec, xin screenshot mới có thể chia sẻ hoặc kiểm tra trực tiếp trên iPhone, không đoán.

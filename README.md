@@ -4,6 +4,12 @@ Webtool tiếng Việt tạo ảnh hội thoại theo giao diện iPhone 14 Pro/
 
 **Dùng thử:** https://ducanhla-debug.github.io/tin-nhan-studio/
 
+## Mẫu chuyển khoản minh họa
+
+Chọn tab Mẫu chuyển khoản: bốn phong cách tham khảo Vietcombank, VietinBank, Techcombank và MB; chỉnh số tiền, người nhận/tài khoản/ngân hàng, nội dung, ngày giờ và mã mẫu. Không kết nối ngân hàng, không tạo giao dịch thật hoặc chứng từ có giá trị.
+
+Nhãn **MÔ PHỎNG – KHÔNG CÓ GIÁ TRỊ GIAO DỊCH** luôn có trong preview/export/copy. Kéo trực tiếp đến vị trí bất kỳ trong ảnh, dùng thanh vị trí/phím mũi tên; cỡ14–22pt, nền tương phản, clamp trong khung. Không nút tắt nhãn, không bút vẽ. PNG/JPG736 ×1600. Mẫu lấy cảm hứng, không bản sao chính thức/pixel-perfect.
+
 ## Tính năng
 
 - Ba giao diện: Messenger, Zalo và Tin nhắn iPhone.
@@ -27,7 +33,7 @@ Trên thiết bị Apple, ảnh dùng font hệ thống và emoji Apple có sẵ
 ## Chạy trên máy
 
 ```bash
-pnpm install
+pnpm install --frozen-lockfile
 pnpm dev
 ```
 
@@ -46,3 +52,6 @@ Dự án là web tĩnh. Thư mục `dist` sau khi chạy `pnpm build` có thể 
 
 - [Tài liệu kiến trúc, vận hành và roadmap](./AI_HANDOVER.md)
 - [Prompt copy–paste cho AI tiếp quản](./PROMPT_FOR_NEXT_AI.md)
+- [Máy mới, quyền GitHub và dữ liệu](./docs/NEW_MACHINE.md)
+- [Kiểm thử portable](./docs/QA.md)
+- [Spec mẫu chuyển khoản](./docs/bank-mockups.md)

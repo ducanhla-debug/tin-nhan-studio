@@ -1,287 +1,116 @@
-# Tài liệu bàn giao — Tin Nhắn Studio
+# Bàn giao Tin Nhắn Studio — bắt đầu ở đây
 
-> Cập nhật: 05/10/2026 · Trạng thái: MVP đã chạy production
+Cập nhật 12/10/2026. Trạng thái hiện hành; máy mới không cần đường dẫn, lịch sử chat hoặc tài khoản Codex trên máy cũ.
 
-## 1. Thông tin nhanh
+## 1. Yêu cầu đã chốt
 
-- **Tên sản phẩm:** Tin Nhắn Studio
-- **Mục tiêu:** Webtool tiếng Việt để dựng và xuất ảnh hội thoại mô phỏng trên iPhone 14 Pro/Dynamic Island.
-- **Website production:** https://ducanhla-debug.github.io/tin-nhan-studio/
-- **Repository:** https://github.com/ducanhla-debug/tin-nhan-studio
-- **Thư mục cục bộ:** `C:\Users\X1 CarBon G8\OneDrive\Documents\ChatGPT\AHC\tin-nhan-studio`
-- **Stack:** React 19, Vite 8, JavaScript, CSS thuần, Canvas 2D, Lucide React.
-- **Backend:** Không có. Toàn bộ dữ liệu và quá trình dựng ảnh chạy trong trình duyệt.
-- **Lưu dữ liệu:** `localStorage`, khóa `tin-nhan-studio-v1`.
-- **Kích thước ảnh xuất hiện hành:** 736 × 1600 px, tỷ lệ 0.46, khớp hai screenshot Messenger/Zalo người dùng cung cấp. Quyết định mới này thay thế tất cả kích thước 1080 × 1920 và 9:16 còn được nhắc trong phần lịch sử bên dưới. Canvas, CSS preview, nhãn UI và kiểm thử tải PNG/JPG phải dùng 736 × 1600; phóng đồng đều theo chiều rộng, không kéo dãn ảnh cũ.
+- Repo: https://github.com/ducanhla-debug/tin-nhan-studio
+- Website: https://ducanhla-debug.github.io/tin-nhan-studio/
+- Webtool tiếng Việt; iPhone 14 Pro/Dynamic Island, iOS 26.
+- Messenger, Zalo, Tin nhắn iPhone (iMessage xanh dương / SMS xanh lá).
+- Ba mode full (phần hội thoại vừa màn hình), focus (tin rõ/nền mờ), preview (Haptic Touch). Full không phải ảnh cuộn dài vô hạn.
+- PNG/JPG **736 × 1600 px**. Hai screenshot mới nhất có kích thước này; yêu cầu 9:16/1080 × 1920 trước đây đã bị thay thế.
+- Tin nhắn không watermark; mẫu chuyển khoản có nhãn mô phỏng bắt buộc. Không backend/analytics; nội dung và ảnh không gửi lên server.
+- Quick pick giờ/pin/sóng/Wi-Fi/4G/5G/sáng tối; trạng thái hoạt động mặc định ẩn nhưng vẫn cho chọn.
+- Giữ Dynamic Island/home indicator theo yêu cầu dù không thấy trong hai ảnh mới nhất.
 
-## 2. Yêu cầu sản phẩm đã được chốt
+## 2. Đọc và chạy trên máy mới
 
-### Nền tảng hội thoại
+Đọc AGENTS.md, README.md, docs/NEW_MACHINE.md, docs/platform-references.md, docs/QA.md, package.json, lockfile, workflow, src/ và tests/ trước khi sửa. PROMPT_FOR_NEXT_AI.md dùng để khởi động phiên mới.
 
-1. Messenger.
-2. Zalo.
-3. Tin nhắn iPhone.
+Cần Git, Node.js 22.12+ (CI dùng Node 22), pnpm 10; không cần .env/API key/database.
 
-### Chế độ ảnh
+    git clone https://github.com/ducanhla-debug/tin-nhan-studio.git
+    cd tin-nhan-studio
+    pnpm install --frozen-lockfile
+    pnpm test
+    pnpm build
+    pnpm dev
 
-1. **Toàn bộ:** hiển thị toàn bộ phần hội thoại vừa với màn hình.
-2. **Làm nổi bật:** làm mờ phần xung quanh, giữ rõ tin nhắn được chọn và hiển thị thanh cảm xúc/menu thao tác.
-3. **Xem trước:** mô phỏng thẻ xem trước Haptic Touch/3D Touch với các thao tác nhanh phía dưới.
+URL local mặc định http://127.0.0.1:5173/. Giữ lockfile; dependencies đã pin theo bản hiện có, Playwright1.63.0 dùng QA. Không update tự ý. Clone công khai không cần đăng nhập; push cần quyền ghi repo, đăng nhập riêng trên máy mới.
 
-### Thiết bị và định dạng
+## 3. Kiến trúc
 
-- Phong cách iPhone 14 Pro có Dynamic Island.
-- Ảnh dọc 1080 × 1920.
-- PNG mặc định, JPG tùy chọn.
-- Không thêm watermark hoặc nhãn “Nội dung mô phỏng”.
-- Cho phép hiện/ẩn bàn phím iPhone.
+| File | Vai trò |
+| --- | --- |
+| src/App.jsx | State, localStorage, upload Data URL, export/copy, buffer render, gesture |
+| src/components.jsx | Editor/control; quote/date nằm trong Chi tiết hiển thị |
+| src/defaults.js | Seed, nhãn, preset, createMessage |
+| src/renderer.js | Canvas, layout, mode, status, hit regions, export |
+| src/bankModel.js | Dữ liệu/chuẩn hóa, nhãn clamp, số tiền |
+| src/bankRenderer.js | 4 phong cách tham khảo + nhãn bắt buộc lớp cuối |
+| src/BankPanels.jsx | Editor chuyển khoản, vị trí/cỡ nhãn/status/export |
+| src/icons.js | Icon path tự vẽ, không SF Symbols |
+| src/typography.js | Apple native / Inter fallback; chờ font trước đo chữ |
+| src/styles.css | Desktop ba vùng, mobile preview trước, CSS không kéo méo canvas |
+| public/fonts/ | Inter 4.1 + OFL; không font Apple |
+| tests/ | Unit tests Node, hiện 16 bài |
+| scripts/qa-browser.mjs | QA trình duyệt portable |
+| .github/workflows/deploy.yml | Install → unit tests → build → Pages |
 
-### Nội dung có thể chỉnh
+Luồng: form → React state → localStorage + render buffer → commit canvas mới nhất → preview/canvasToBlob. Debounce 70ms, renderToken ngăn kết quả cũ ghi đè.
 
-- Tên người trò chuyện và ảnh đại diện.
-- Trạng thái hoạt động.
-- Tin nhắn văn bản hoặc hình ảnh.
-- Người gửi: “Người kia” hoặc “Bạn”.
-- Thời gian và cảm xúc của từng tin nhắn.
-- Thêm, sửa, xóa và thay đổi thứ tự tin nhắn.
-- Thời gian hệ thống, pin, số vạch sóng, Wi‑Fi, 4G/5G, giao diện sáng/tối.
-- Quick Pick: Mặc định, Hằng ngày, Đêm khuya và Mạng yếu.
+API hiện hành:
 
-### Trải nghiệm sử dụng
+- canvasSize: 736 × 1600. logicalSize: 393 × (393 × 1600 / 736) pt, khoảng 854.35pt. SCALE=736/393, phóng đồng đều hai trục.
+- layoutMessages(ctx,state,top,bottom): wrap/group/capture; bottom-align, clip tin đầu khi dài; focus đưa tin cũ được chọn vào viewport.
+- renderToCanvas(canvas,state): chờ font/ảnh; nhánh nội bộ tên full, focus, preview.
+- commitRenderedCanvas(source,target): copy pixels + hit regions.
+- messageAtPoint(canvas,x,y): tọa độ logical, trả message id/null.
+- statusValues(state): clamp/round pin 0..100, sóng 0..4.
+- canvasToBlob(canvas,format): PNG/JPEG quality .94.
 
-- Xem trước trực tiếp trong khung iPhone.
-- Tự lưu trên trình duyệt, không cần tài khoản.
-- Sử dụng tốt trên máy tính và điện thoại.
-- Nội dung và hình ảnh người dùng không được gửi đến máy chủ.
+Không screenshot DOM để export; không phụ thuộc viewport/DPR. Frame điện thoại chỉ trong preview, không nằm trong file tải xuống.
 
-## 3. Kiến trúc mã nguồn
+## 4. State và UX
 
-```text
-tin-nhan-studio/
-├─ .github/workflows/deploy.yml   # Build, test và deploy GitHub Pages
-├─ docs/design-concept.png        # Mẫu thiết kế tham chiếu
-├─ public/favicon.svg             # Biểu tượng trang
-├─ src/
-│  ├─ App.jsx                     # State, localStorage, upload, export/copy ảnh
-│  ├─ components.jsx              # Header, bảng thiết lập, bảng chỉnh sửa
-│  ├─ defaults.js                 # Dữ liệu mẫu, nhãn, preset, factory tin nhắn
-│  ├─ main.jsx                    # React entry point
-│  ├─ renderer.js                 # Tọa độ 393pt -> Canvas 1080 × 1920
-│  ├─ icons.js                    # Icon outline tự vẽ, không phải SF Symbols
-│  ├─ typography.js               # Font Apple native / Inter 4.1 thay thế
-│  └─ styles.css                  # Design system và responsive
-├─ tests/
-│  ├─ defaults.test.js            # Kiểm tra dữ liệu/preset
-│  └─ renderer.test.js            # Kiểm tra tỷ lệ và ngắt dòng
-├─ index.html
-├─ package.json
-├─ pnpm-lock.yaml
-└─ vite.config.js
-```
+Storage key tin-nhan-studio-v1; load merge initialState với JSON cũ nếu messages là array. localStorage có quota; hiển thị chưa lưu được nếu lỗi. documentType chat/bank giữ riêng nội dung; bank merge/normalize defaults khi load. Xem docs/bank-mockups.md. Nhãn chuyển khoản luôn được renderer vẽ, không dựa vào cờ visibility trong state.
 
-## 4. Luồng dữ liệu
+State: platform, messageService, mode, name, avatar, activity, time, carrier, signal, wifi, battery, appearance, keyboard, format, selectedId, captureEndId, deliveryState, messages.
 
-```text
-Người dùng thay đổi form
-        ↓
-React state trong App.jsx
-        ↓
-Lưu JSON vào localStorage
-        ↓
-renderToCanvas(canvas, state)
-        ↓
-Canvas 1080 × 1920
-        ↓
-Xem trước thu nhỏ / xuất PNG hoặc JPG
-```
+Message: id, sender (me/them), type (text/image), text, time, reaction; optional image Data URL, dateSeparator, replyText, replyName, reactionCount. Giữ fallback cho state cũ.
 
-State chính có cấu trúc gần như sau:
+- Chạm chọn tin, hold 450ms mở focus, chạm nền đóng, pointer kéo >8px hủy hold.
+- captureEndId chọn tin cuối đoạn chụp; thêm tin reset captureEndId.
+- deliveryState none/delivered/seen hiển thị riêng theo nền tảng.
+- Sắp xếp nút lên/xuống; grip chưa kéo thả.
+- Messenger quote, Zalo date pill và reaction count; quote trên các nền tảng khác chưa có đầy đủ.
+- Bàn phím mô phỏng QWERTY tĩnh, không keyboard thật.
 
-```js
-{
-  platform: 'messenger' | 'zalo' | 'imessage',
-  mode: 'full' | 'focus' | 'preview',
-  name: string,
-  avatar: string,             // Data URL
-  activity: string,
-  time: string,
-  carrier: string,
-  signal: number,             // 1..4
-  wifi: boolean,
-  battery: number,            // 1..100
-  appearance: 'light' | 'dark',
-  keyboard: boolean,
-  format: 'png' | 'jpg',
-  selectedId: string,
-  messages: Array<{
-    id: string,
-    sender: 'me' | 'them',
-    type: 'text' | 'image',
-    text: string,
-    image?: string,           // Data URL
-    time: string,
-    reaction: string
-  }>
-}
-```
+## 5. Tham chiếu và giới hạn fidelity
 
-## 5. Bộ dựng ảnh Canvas
+docs/platform-references.md ghi đặc điểm hai screenshot thật người dùng gửi. Không công khai ảnh gốc/tên/nội dung riêng tư. docs/design-concept.png chỉ chuẩn editor, không chuẩn chat. docs/examples/ là ảnh tool tạo với hội thoại giả, không phải ảnh native hoặc bằng chứng pixel-perfect.
 
-`src/renderer.js` là phần quan trọng nhất.
+Apple dùng font hệ thống/emoji Apple có sẵn; Windows/Android dùng Inter/emoji OS. Không phân phối SF Pro/Apple emoji. Safari iPhone 14 Pro, độ khớp từng pixel, dark/menu/blur chưa được xác minh đầy đủ. Phiên bản App Store không chứng minh mọi rollout.
 
-- `renderToCanvas()` là cổng vào chung.
-- `renderFull()` dựng giao diện hội thoại đầy đủ.
-- `renderFocus()` dựng một canvas nền, blur nền, sau đó chép lại vùng tin nhắn được chọn và vẽ menu.
-- `renderPreview()` dựng ảnh nền blur, thẻ xem trước và danh sách thao tác nhanh.
-- `drawStatusBar()` dựng thời gian, sóng, mạng, pin và Dynamic Island.
-- `drawMessages()` tính layout rồi vẽ bong bóng, avatar, thời gian và cảm xúc.
-- `canvasToBlob()` chuyển canvas thành PNG/JPG.
+## 6. QA và deploy
 
-Nguyên tắc cần giữ:
+    pnpm test
+    pnpm build
+    pnpm exec playwright install chromium
 
-- Thuộc tính thật của canvas luôn là `1080 × 1920`; chỉ CSS mới thu nhỏ bản xem trước.
-- Không dựng ảnh xuất từ screenshot DOM vì sẽ phụ thuộc độ phân giải màn hình.
-- Ảnh tải lên phải được chuyển thành Data URL để Canvas có thể vẽ và localStorage có thể lưu.
-- Khi thay đổi renderer, luôn kiểm tra cả ba mode và cả light/dark.
+Chạy pnpm dev ở terminal 1, terminal 2:
 
-## 6. Design system
+    pnpm test:e2e
+    pnpm test:e2e https://ducanhla-debug.github.io/tin-nhan-studio/
 
-- Bảng điều khiển: nền trắng thật `#ffffff`.
-- Canvas làm việc: xanh than/charcoal.
-- Màu nhấn chính: `#0b74f6`.
-- Bán kính control: khoảng 8–12 px.
-- Typography: system font, ưu tiên `-apple-system`, sau đó `Segoe UI`.
-- Desktop: ba cột — thiết lập / bản xem trước / chỉnh sửa và xuất.
-- Mobile: bản xem trước lên trước, các bảng điều khiển xếp dọc phía dưới.
+Đọc docs/QA.md. CI hiện unit/build, không E2E. QA chức năng không chứng minh pixel-perfect.
 
-Mẫu tham chiếu nằm tại `docs/design-concept.png`. Không được thay toàn bộ UI bằng landing page; đây phải là công cụ biên tập thực tế.
+Sau sửa renderer: 3 nền tảng × 3 mode × sáng/tối; keyboard/upload/crop/seen/quote/date/status/hold; desktop/mobile; decode PNG/JPG tải xuống cùng 736 × 1600. Không dùng canvas attribute/build làm bằng chứng duy nhất.
 
-## 7. Chạy và kiểm thử
+Khi người dùng yêu cầu deploy: giữ worktree unrelated, commit/push main, chờ Actions success rồi kiểm tra production. Vite base './'. Fork cần bật Settings → Pages → GitHub Actions, đổi URL owner/repo; không mặc định có quyền repo gốc.
 
-Yêu cầu Node.js hiện đại và pnpm.
+## 7. Dữ liệu không mang theo
 
-```bash
-pnpm install
-pnpm dev
-```
+Repo có code/spec/test/font/config, không có state trình duyệt, avatar cá nhân, credentials, lịch sử chat AI. Domain/profile khác không tự có hội thoại. Chưa có UI export/import JSON.
 
-Đóng gói và kiểm thử:
+Backup thủ công: DevTools → Application/Storage → Local Storage → đúng origin → copy giá trị tin-nhan-studio-v1 vào JSON riêng. Kiểm tra messages array; backup state đích trước ghi đè, nhập cùng key trên origin đích rồi reload. Không dán script không tin cậy hoặc đưa dữ liệu riêng lên GitHub. Data URL có thể rất lớn. Không cần chuyển state để sửa code.
 
-```bash
-pnpm test
-pnpm build
-```
+## 8. Hạn chế / ưu tiên
 
-Kết quả bàn giao gần nhất:
+- P0: đối chiếu Safari iPhone thực tế, font/emoji/icon/menu theo bằng chứng mới.
+- P1: chọn tin bắt đầu, layout quote dài, focus tin rất dài, keyboard nhiều layout, drag/drop.
+- Chưa có voice note/sticker/link preview/cuộc gọi/nhóm chat. CaptureEnd, delivery cơ bản và Messenger quote đã có.
+- P2: JSON import/export, IndexedDB/nén ảnh/schema migration, visual regression/CI E2E, Clipboard JPEG tùy trình duyệt. Dependencies đã pin, E2E portable đã vào repo.
 
-- 6/6 unit tests đạt.
-- Build production đạt.
-- Không có lỗi console trên localhost và production.
-- Thêm tin nhắn làm số dòng tăng từ 5 lên 6.
-- Ảnh tải xuống đã được đọc trực tiếp và xác nhận đúng 1080 × 1920.
-- Viewport 390 × 844 không có tràn ngang.
-- GitHub Pages workflow chạy thành công sau khi Pages được bật bằng GitHub Actions.
-
-### Checklist kiểm thử thủ công bắt buộc
-
-1. Mở trang và xác nhận Canvas không trắng.
-2. Đổi lần lượt Messenger, Zalo, Tin nhắn.
-3. Đổi lần lượt Toàn bộ, Làm nổi bật, Xem trước.
-4. Sửa tên, trạng thái, nội dung và thời gian.
-5. Thêm rồi xóa một tin nhắn.
-6. Đổi người gửi và thứ tự tin nhắn.
-7. Tải avatar và ảnh tin nhắn.
-8. Bật bàn phím, dark mode và từng Quick Pick.
-9. Xuất cả PNG và JPG.
-10. Đọc kích thước file PNG để xác nhận 1080 × 1920.
-11. Kiểm tra desktop và viewport mobile khoảng 390 px.
-12. Kiểm tra console không có error/warning liên quan ứng dụng.
-
-## 8. Triển khai
-
-Workflow: `.github/workflows/deploy.yml`.
-
-Mỗi lần push lên nhánh `main`, GitHub Actions sẽ:
-
-1. Cài pnpm và Node.
-2. Cài dependencies theo lockfile.
-3. Chạy test.
-4. Build Vite.
-5. Upload thư mục `dist`.
-6. Deploy GitHub Pages.
-
-Vite đang dùng `base: './'`, phù hợp với project page `/tin-nhan-studio/`.
-
-## 9. Hạn chế và nợ kỹ thuật hiện tại
-
-Đây là MVP hoàn chỉnh để thử nghiệm, nhưng chưa phải bản sao pixel-perfect của từng ứng dụng thật.
-
-1. Cập nhật 05/10/2026: header/composer riêng cho ba nền tảng, Zalo header xanh và tin gửi xanh nhạt; Messages dùng contact control kiểu iOS 26, không có avatar bên bong bóng. Icon tự vẽ bằng path; chưa phải bản sao pixel-perfect và có thể khác các đợt rollout của ứng dụng.
-2. Đã có chọn nhanh iMessage xanh dương / SMS xanh lá. Thời gian Messenger/Messages nhóm theo khoảng cách trên 5 phút, Zalo đặt trong bong bóng. Focus giữ tin được chọn, menu tự tránh đáy và không sao chép một mảng nền sắc nét quanh tin.
-3. Icon “grip” trong danh sách mới là dấu hiệu trực quan; sắp xếp thực tế dùng nút lên/xuống, chưa có drag-and-drop.
-4. Data URL của nhiều ảnh lớn có thể vượt giới hạn `localStorage` của trình duyệt.
-5. Tin nhắn dài được tự động bỏ bớt các tin đầu để vừa ảnh; chưa có thanh chọn chính xác đoạn hội thoại cần chụp.
-6. Chưa hỗ trợ video, audio, voice note, link preview, reply quote, sticker thật, trạng thái đã xem/đã gửi chi tiết hoặc nhóm chat.
-7. Bàn phím là bản mô phỏng tĩnh QWERTY, có shift/backspace/123/emoji/globe/mic nhưng chưa có nhiều layout tiếng Việt/số/emoji.
-8. Tên thương hiệu và hình thức UI chỉ mang tính mô phỏng; không sử dụng asset/logo chính thức của nền tảng.
-9. Chưa có E2E tests được commit vào repository; các lần kiểm thử dùng Playwright bên ngoài repo để kiểm thử trình duyệt và file tải xuống.
-10. Dependencies đang khai báo `latest`; nên pin phiên bản trước khi phát triển dài hạn.
-
-## 10. Thứ tự cải tiến đề xuất
-
-Đợt sửa UX/typography tiếp theo cùng ngày: render buffer chỉ commit state mới nhất, chờ font trước khi đo dòng, ngắt chuỗi dài theo grapheme, thao tác chạm/nhấn giữ trên canvas, captureEndId và deliveryState. Chi tiết nguồn/giới hạn trong docs/platform-references.md. Người dùng yêu cầu khớp UI/UX/font bản 2026; tiêu chí fidelity này CHƯA đạt xác nhận trên iPhone thực tế, không được đánh đồng QA chức năng với khớp pixel.
-
-### P0 — Độ chân thực
-
-- Header/composer đã có nhánh riêng; tiếp tục đối chiếu ảnh chụp thật theo phiên bản ứng dụng.
-- Đối chiếu khoảng cách, font, icon, màu, trạng thái đã xem với từng ứng dụng trên iPhone 14 Pro.
-- Tùy chọn iMessage/SMS đã hoàn thành.
-
-### P1 — Điều khiển ảnh
-
-- Cho phép chọn tin nhắn bắt đầu/kết thúc hoặc kéo vùng hội thoại muốn chụp.
-- Thêm mức blur, vị trí menu cảm xúc và kiểu menu Haptic Touch.
-- Thêm preset iOS 16/17/18 nếu cần.
-
-### P1 — Nội dung chat
-
-- Reply quote, link preview, sticker, voice note, cuộc gọi nhỡ, đã xem và nhóm chat.
-- Kéo thả sắp xếp tin nhắn.
-- Sao chép/nhân bản tin nhắn.
-
-### P2 — Độ bền dữ liệu
-
-- Chuyển ảnh từ localStorage sang IndexedDB.
-- Export/import dự án dưới dạng JSON.
-- Tự nén ảnh tải lên trước khi lưu.
-
-### P2 — QA và bảo trì
-
-- Pin dependency versions.
-- Thêm Playwright E2E vào repo và GitHub Actions.
-- Thêm visual regression cho ba nền tảng × ba chế độ × sáng/tối.
-
-## 11. Quy tắc khi AI khác sửa tiếp
-
-1. Đọc toàn bộ `AI_HANDOVER.md`, `PROMPT_FOR_NEXT_AI.md`, `README.md` và các file trong `src/` trước khi sửa.
-2. Không tự ý thêm watermark.
-3. Không đổi mục tiêu sang landing page hoặc thêm backend khi chưa được yêu cầu.
-4. Không làm ảnh xuất phụ thuộc kích thước viewport.
-5. Giữ dữ liệu ở máy người dùng trừ khi có yêu cầu rõ ràng khác.
-6. Không xóa hoặc ghi đè thay đổi không liên quan trong worktree.
-7. Sau mỗi thay đổi phải chạy `pnpm test`, `pnpm build` và kiểm thử giao diện thật.
-8. Với thay đổi renderer, phải tải một ảnh thật và xác minh header PNG là 1080 × 1920.
-9. Kiểm tra production sau khi GitHub Actions hoàn tất, không chỉ dựa vào build cục bộ.
-10. Ghi lại thay đổi, test đã chạy, rủi ro còn lại và URL production trong câu trả lời bàn giao.
-
-## 12. Tiêu chí hoàn thành cho lần phát triển tiếp theo
-
-Một thay đổi chỉ được xem là hoàn tất khi:
-
-- Tính năng hoạt động trên giao diện thật, không phải control giả.
-- Bản xem trước và file tải xuống cùng phản ánh thay đổi.
-- Không có lỗi console liên quan.
-- Không có tràn ngang trên mobile.
-- Unit tests và production build đạt.
-- File ảnh xuất vẫn đúng 1080 × 1920.
-- GitHub Pages triển khai thành công và URL production mở được.
+Checkpoint chức năng chat trước đây: 12 unit tests + build, 18 trạng thái/6 file export. Đợt bổ sung chuyển khoản: 16 unit tests; E2E 18 trạng thái chat và 14 file PNG/JPG (6 chat + 8 chuyển khoản) đúng736 ×1600; kiểm tra pixel nền nhãn trong file tải, drag/key/edge/reload và mobile390 ×844. Chạy lại trên localhost và production sau deploy; không coi checkpoint là bảo đảm cho thay đổi sau này hoặc khớp pixel-native.

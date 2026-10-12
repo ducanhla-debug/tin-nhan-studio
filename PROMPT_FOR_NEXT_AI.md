@@ -1,88 +1,17 @@
-# Prompt bàn giao cho AI tiếp theo
+# Prompt tiếp quản trên máy mới
 
-Sao chép toàn bộ prompt bên dưới và gửi cho AI sẽ tiếp quản dự án.
+Sao chép phần dưới, điền nhiệm vụ.
 
----
+Tiếp quản Tin Nhắn Studio: https://github.com/ducanhla-debug/tin-nhan-studio. Production: https://ducanhla-debug.github.io/tin-nhan-studio/.
 
-Bạn đang tiếp quản dự án **Tin Nhắn Studio**, một webtool tiếng Việt tạo ảnh hội thoại mô phỏng trên iPhone 14 Pro/Dynamic Island.
+Clone/pull repo mới nhất; đọc AGENTS.md, AI_HANDOVER.md, README.md, docs/NEW_MACHINE.md, docs/platform-references.md, docs/QA.md. Kiểm tra git status, package/lockfile/workflow/src/tests. Không cần máy hoặc lịch sử chat cũ. Nếu môi trường không đọc/chỉnh được repo, nói rõ và yêu cầu mở repo trong môi trường lập trình phù hợp.
 
-## Nguồn dự án
+Hiện hành: webtool tiếng Việt, iPhone 14 Pro/Dynamic Island/iOS 26; Messenger/Zalo/Tin nhắn full/focus/preview và tab Mẫu chuyển khoản (4 phong cách tham khảo). PNG/JPG **736 × 1600 px**. Không quay về yêu cầu 9:16/1080 × 1920 cũ; không kéo méo font/icon. Tin nhắn không watermark; chuyển khoản bắt buộc nhãn MÔ PHỎNG – KHÔNG CÓ GIÁ TRỊ GIAO DỊCH đọc được, kéo trong ảnh, không tắt/che/làm mờ, không bút vẽ. Đọc docs/bank-mockups.md. Không backend/analytics. docs/examples là ảnh tool dựng với nội dung giả, không ảnh native pixel-perfect.
 
-- Repository: https://github.com/ducanhla-debug/tin-nhan-studio
-- Production: https://ducanhla-debug.github.io/tin-nhan-studio/
-- Nếu làm trên máy hiện tại, thư mục dự án là: `C:\Users\X1 CarBon G8\OneDrive\Documents\ChatGPT\AHC\tin-nhan-studio`
+Máy mới: Git, Node.js 22.12+, pnpm 10; pnpm install --frozen-lockfile, pnpm test, pnpm build, pnpm dev. QA: pnpm exec playwright install chromium; chạy server rồi pnpm test:e2e. Xác minh desktop/mobile và decode PNG/JPG thực, không chỉ build.
 
-Trước khi hành động, hãy đọc đầy đủ:
+**Nhiệm vụ mới: [ĐIỀN YÊU CẦU Ở ĐÂY].**
 
-1. `AI_HANDOVER.md`
-2. `README.md`
-3. `package.json`
-4. `.github/workflows/deploy.yml`
-5. Toàn bộ `src/`
-6. Toàn bộ `tests/`
+Thực hiện trong phạm vi, giữ thay đổi không liên quan; sửa tài liệu/tests cùng tính năng. Không reset dữ liệu trình duyệt, xuất bản ảnh riêng hoặc credentials; không tuyên bố pixel-perfect chưa xác minh. Báo cáo kết quả và rủi ro.
 
-Sau đó kiểm tra `git status` và giữ nguyên mọi thay đổi không liên quan của người dùng.
-
-## Mục tiêu sản phẩm bắt buộc
-
-- Ba giao diện: Messenger, Zalo và Tin nhắn iPhone.
-- Ba chế độ: Toàn bộ, Làm nổi bật và Xem trước Haptic Touch/3D Touch.
-- Thiết bị: iPhone 14 Pro có Dynamic Island.
-- Ảnh xuất: dọc 1080 × 1920, PNG/JPG.
-- Có Quick Pick cho thời gian, pin, sóng, Wi‑Fi/4G/5G và sáng/tối.
-- Có thể sửa tên, avatar, trạng thái, người gửi, nội dung, ảnh, thời gian, cảm xúc và thứ tự tin nhắn.
-- Có thể hiện/ẩn bàn phím iPhone.
-- Dữ liệu lưu cục bộ trong trình duyệt.
-- Không watermark.
-- Không biến ứng dụng thành landing page; phải giữ editor ba vùng và bản xem trước trực tiếp.
-
-## Kiến trúc cần giữ
-
-- React + Vite.
-- `App.jsx` quản lý state, localStorage, upload và export.
-- `components.jsx` chứa UI điều khiển.
-- `defaults.js` chứa seed/preset.
-- `renderer.js` dựng ảnh bằng Canvas 2D.
-- Canvas thật luôn là 1080 × 1920; CSS chỉ thu nhỏ bản xem trước.
-- GitHub Pages deploy từ workflow trong `.github/workflows/deploy.yml`.
-
-## Nhiệm vụ của bạn
-
-1. Hỏi hoặc suy luận yêu cầu thay đổi cụ thể từ tin nhắn mới nhất của người dùng.
-2. Kiểm tra hiện trạng trước khi sửa; không đoán khi mã nguồn có thể trả lời.
-3. Thực hiện thay đổi hoàn chỉnh, bao gồm state, UI, renderer và export nếu tính năng liên quan ảnh.
-4. Giữ giao diện tiếng Việt tự nhiên, gọn và nhất quán.
-5. Không thêm backend, tài khoản, analytics, watermark hoặc truyền dữ liệu ra ngoài nếu người dùng chưa yêu cầu.
-6. Nếu sửa giao diện nền tảng, ưu tiên nâng độ chân thực của Messenger/Zalo/Messages trên iPhone 14 Pro.
-7. Nếu thêm loại tin nhắn, cập nhật đồng thời editor, dữ liệu mặc định, Canvas renderer và test.
-
-## Kiểm thử bắt buộc
-
-Chạy:
-
-```bash
-pnpm install
-pnpm test
-pnpm build
-```
-
-Sau đó kiểm thử bằng trình duyệt thật:
-
-- Trang tải được, không có framework overlay.
-- Console không có lỗi liên quan.
-- Control mới làm thay đổi UI thật.
-- Kiểm tra cả desktop và mobile 390 px.
-- Kiểm tra ba nền tảng và ba chế độ nếu renderer bị sửa.
-- Tải ảnh PNG và xác nhận file có kích thước 1080 × 1920.
-- Kiểm tra bản production sau khi deploy.
-
-## Trước khi kết thúc
-
-- `docs/design-concept.png` chỉ tham khảo bố cục editor. Giao diện chat phải đối chiếu ảnh chụp thật hoặc nguồn chính thức theo phiên bản ứng dụng, không dùng concept làm chuẩn nền tảng.
-- Ghi rõ file đã sửa, kiểm thử đã chạy, kết quả, giới hạn còn lại.
-- Nếu được yêu cầu triển khai, commit và push lên `main`, theo dõi GitHub Actions đến khi thành công, rồi mở production URL để xác minh.
-- Không tuyên bố hoàn tất chỉ vì build thành công; phải xác minh luồng người dùng và ảnh xuất thật.
-
-Hãy bắt đầu bằng cách tóm tắt hiện trạng dự án và nêu ngắn gọn kế hoạch cho yêu cầu mới nhất, sau đó chủ động thực hiện đến khi hoàn tất.
-
----
+Triển khai chỉ khi tôi yêu cầu: push main cần quyền GitHub trên máy mới; chờ Actions success rồi kiểm tra production. Thiếu quyền thì giữ local và hướng dẫn cấp quyền.

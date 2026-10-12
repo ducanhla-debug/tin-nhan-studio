@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { CheckCircle2, MonitorSmartphone } from 'lucide-react'
-import { AppHeader, SetupPanel, StatusPanel } from './components.jsx'
+import { AppHeader, SetupPanel, StatusPanel, Segmented } from './components.jsx'
+import {BankSetup,BankOptions} from './BankPanels.jsx'
+import {normalizeBank,labelGeometry,moveLabel} from './bankModel.js'
 import { createMessage, initialState } from './defaults.js'
 import { canvasToBlob, renderToCanvas, commitRenderedCanvas, logicalSize, messageAtPoint } from './renderer.js'
 
@@ -9,7 +11,7 @@ const STORAGE_KEY = 'tin-nhan-studio-v1'
 function loadState() {
   try {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY))
-    return saved && Array.isArray(saved.messages) ? { ...initialState, ...saved } : initialState
+    return saved && Array.isArray(saved.messages) ? { ...initialState, ...saved,bank:normalizeBank(saved.bank) } : initialState
   } catch {
     return initialState
   }
@@ -26,9 +28,19 @@ function readFile(file) {
 
 function Preview({ state, setState, canvasRef, rendering, saved }) {
   const gesture = useRef(null)
+  const bank=state.documentType==='bank'
+  const point=event=>{const r=canvasRef.current.getBoundingClientRect();return {x:(event.clientX-r.left)/r.width*logicalSize.width,y:(event.clientY-r.top)/r.height*logicalSize.height}}
   useEffect(() => () => window.clearTimeout(gesture.current?.timer), [])
   const begin = (event) => {
     if (rendering) return
+    if(bank){
+      const p=point(event),g=labelGeometry(state.bank)
+      if(p.x>=g.x&&p.x<=g.x+g.w&&p.y>=g.y&&p.y<=g.y+g.h){
+        event.preventDefault();event.currentTarget.setPointerCapture(event.pointerId)
+        gesture.current={label:true,dx:p.x-g.x,dy:p.y-g.y}
+      }
+      return
+    }
     const canvas = canvasRef.current
     const bounds = canvas.getBoundingClientRect()
     const id = messageAtPoint(canvas, (event.clientX-bounds.left)/bounds.width*logicalSize.width, (event.clientY-bounds.top)/bounds.height*logicalSize.height)
@@ -43,6 +55,7 @@ function Preview({ state, setState, canvasRef, rendering, saved }) {
   const end = () => {
     const current = gesture.current
     if(!current) return
+    if(current.label){gesture.current=null;return}
     window.clearTimeout(current.timer)
     if(!current.held) {
       if(current.id) setState(s=>({...s,selectedId:current.id}))
@@ -58,10 +71,10 @@ function Preview({ state, setState, canvasRef, rendering, saved }) {
       </div>
       <div className="phone-shell">
         <div className="phone-buttons left one" /><div className="phone-buttons left two" /><div className="phone-buttons right" />
-        <canvas ref={canvasRef} aria-label="Bản xem trước ảnh tin nhắn" onPointerDown={begin} onPointerUp={end} onPointerCancel={cancel} onPointerLeave={cancel} onPointerMove={(e)=>{const current=gesture.current;if(current&&Math.hypot(e.clientX-current.x,e.clientY-current.y)>8)cancel()}} onContextMenu={(e)=>{e.preventDefault();const current=gesture.current;if(current?.id){window.clearTimeout(current.timer);setState(s=>({...s,selectedId:current.id,mode:'focus'}));gesture.current=null}}} />
+        <canvas ref={canvasRef} tabIndex={bank?0:undefined} className={bank?'bank-canvas':''} aria-label={bank?'Bản xem trước mẫu chuyển khoản. Kéo nhãn hoặc dùng phím mũi tên để di chuyển.':'Bản xem trước ảnh tin nhắn'} onKeyDown={e=>{if(!bank)return;const delta={ArrowLeft:[-2,0],ArrowRight:[2,0],ArrowUp:[0,-2],ArrowDown:[0,2]}[e.key];if(delta){e.preventDefault();setState(s=>({...s,bank:normalizeBank({...s.bank,labelX:Number(s.bank.labelX)+delta[0],labelY:Number(s.bank.labelY)+delta[1]})}))}}} onPointerDown={begin} onPointerUp={end} onPointerCancel={cancel} onPointerLeave={()=>{if(!gesture.current?.label)cancel()}} onLostPointerCapture={cancel} onPointerMove={(e)=>{const current=gesture.current;if(current?.label){const p=point(e);setState(s=>({...s,bank:moveLabel(s.bank,p.x-current.dx,p.y-current.dy)}));return}if(current&&Math.hypot(e.clientX-current.x,e.clientY-current.y)>8)cancel()}} onContextMenu={(e)=>{e.preventDefault();if(bank)return;const current=gesture.current;if(current?.id){window.clearTimeout(current.timer);setState(s=>({...s,selectedId:current.id,mode:'focus'}));gesture.current=null}}} />
         {rendering ? <div className="rendering">Đang cập nhật…</div> : null}
       </div>
-      <p className="preview-hint">Chạm để chọn tin · Nhấn giữ để làm nổi bật</p>
+      <p className="preview-hint">{bank?'Kéo nhãn tự do · Nhãn luôn giữ trong ảnh xuất':'Chạm để chọn tin · Nhấn giữ để làm nổi bật'}</p>
     </main>
   )
 }
@@ -138,7 +151,7 @@ export default function App() {
       const url = URL.createObjectURL(blob)
       const anchor = document.createElement('a')
       anchor.href = url
-      anchor.download = `tin-nhan-${state.platform}-${Date.now()}.${state.format}`
+      anchor.download = state.documentType==='bank'?`mau-mo-phong-${state.bank.style}-${Date.now()}.${state.format}`:`tin-nhan-${state.platform}-${Date.now()}.${state.format}`
       anchor.click()
       URL.revokeObjectURL(url)
       setToast('Đã tạo ảnh 736 × 1600')
@@ -169,10 +182,11 @@ export default function App() {
   return (
     <div className="app-shell">
       <AppHeader onReset={() => { try { localStorage.removeItem(STORAGE_KEY) } catch {} setState(initialState) }} onDownload={download} exporting={exporting} format={state.format} />
+      <nav className="document-switch" aria-label="Loại ảnh"><Segmented value={state.documentType || 'chat'} items={[{value:'chat',label:'Tin nhắn'},{value:'bank',label:'Mẫu chuyển khoản'}]} onChange={documentType=>setState(s=>({...s,documentType}))}/></nav>
       <div className="workspace">
-        <SetupPanel state={state} setState={setState} onAvatar={(event) => updateFile(event, 'avatar')} onAddMessage={addMessage} />
+        {state.documentType==='bank'?<BankSetup state={state} setState={setState}/>:<SetupPanel state={state} setState={setState} onAvatar={(event) => updateFile(event, 'avatar')} onAddMessage={addMessage} />}
         <Preview state={state} setState={setState} canvasRef={canvasRef} rendering={rendering} saved={saved} />
-        <StatusPanel
+        {state.documentType==='bank'?<BankOptions state={state} setState={setState} onDownload={download} onCopy={copyImage} exporting={exporting}/>:<StatusPanel
           state={state}
           setState={setState}
           onMessageImage={(event) => updateFile(event, 'message')}
@@ -181,7 +195,7 @@ export default function App() {
           onDownload={download}
           onCopy={copyImage}
           exporting={exporting}
-        />
+        />}
       </div>
       {toast ? <div className="toast" role="status"><CheckCircle2 size={18} /> {toast}</div> : null}
     </div>

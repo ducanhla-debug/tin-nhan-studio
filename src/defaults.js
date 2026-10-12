@@ -1,3 +1,4 @@
+import {initialBank} from './bankModel.js'
 export const platformLabels = {
   messenger: 'Messenger',
   zalo: 'Zalo',
@@ -19,6 +20,8 @@ export const seedMessages = [
 ]
 
 export const initialState = {
+  documentType: 'chat',
+  bank: {...initialBank},
   platform: 'messenger',
   messageService: 'imessage',
   captureEndId: '',
